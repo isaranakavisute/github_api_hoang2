@@ -1,0 +1,86 @@
+package com.example.super_springboot.service;
+
+import com.example.super_springboot.dto.MrPolicyholderProjection;
+import com.example.super_springboot.dto.request.ClaimRequest;
+import com.example.super_springboot.entity.ClClaim;
+import com.example.super_springboot.entity.ClLine;
+import com.example.super_springboot.helper.utils.DateUtils;
+import com.example.super_springboot.repository.CL_CLAIM_Repository;
+import com.example.super_springboot.repository.CL_LINE_Repository;
+import com.example.super_springboot.repository.MR_POLICY_HOLDER_Repository;
+
+import lombok.RequiredArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class ClaimService {
+
+    private final CL_CLAIM_Repository claimRepository;
+    private final CL_LINE_Repository clLineRepository;
+    private final MR_POLICY_HOLDER_Repository pohoRepository;
+
+    public ClClaim proceedSavedClaim(ClClaim claim, ClLine clli, ClaimRequest request) throws Exception {
+        // Save ClClaim
+        claim.setClNo(generateNewClaimNo(clli.getRcvDate()));
+        ClClaim savedClaim = claimRepository.save(claim);
+
+        // Proceed to process the ClLines
+        if(savedClaim != null) {
+            Integer diffDays = Integer.valueOf(DateUtils.diffDay(clli.getIncurDateFrom(), clli.getIncurDateTo()));
+            Long provOid = clLineRepository.getProviderOidByName(request.getProvider());
+            Long membOid = clLineRepository.getMembOidByNo(request.getMember_no());
+            List<MrPolicyholderProjection> pohoRs = (List<MrPolicyholderProjection>) pohoRepository.getPohoByMbrNo(request.getMember_no());
+            MrPolicyholderProjection poho = pohoRs.get(0);
+
+            clli.setClamOid(savedClaim.getClamOid());
+            clli.setLineNo(generateNewLineNo(claim.getClamOid()));
+            clli.setLineRevNo(0);
+            clli.setDays(diffDays);
+            clli.setProvOid(provOid);
+            clli.setProvName(request.getProvider());
+            clli.setMembOid(membOid);
+
+            //.benPoplOid(lineRequest.getPopl_oid())
+            //.poplOid(lineRequest.getPopl_oid())
+            //.behdOid(lineRequest.getBehd_oid())
+            //.diagOid(lineRequest.getDiag_oid())
+
+            clli.setPayAddr1(poho.getBillAddr1());
+            clli.setPayAddr2(poho.getBillAddr2());
+            clli.setPayAddr3(poho.getBillAddr3());
+            clli.setPayAddr4(poho.getBillAddr4());
+            clli.setScmaOidCountryPay(poho.getScmaOidCountryBillAddr());
+            clli.setScmaOidClPaymentMethod(poho.getScmaOidClPayMethod());
+            clli.setScmaOidPayProvince(poho.getScmaOidBillProvince());
+            clli.setPayZipCde(poho.getBillZipCde());
+
+            ClLine savedLine = clLineRepository.save(clli);
+            if (savedLine != null) {
+                return savedClaim;
+            }
+        }
+        
+        return null;
+    }
+
+    public String generateNewClaimNo(LocalDateTime rcvDate) {
+        // Format rcvDate from LocalDateTime -> yyMMdd
+        String prefix = rcvDate.format(DateTimeFormatter.ofPattern("yyMMdd"));
+        String suffix = claimRepository.findNextClaimSuffix(prefix);
+        return (suffix != null) ? prefix + suffix : prefix + "0001";
+    }
+
+    public Integer generateNewLineNo(Long clamOid) {
+        if (clamOid == null) {
+            throw new IllegalArgumentException("clamOid must not be null");
+        }
+
+        return clLineRepository.findNextLineNo(clamOid);
+    }
+}

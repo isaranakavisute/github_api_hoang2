@@ -83,6 +83,7 @@ public class ClaimRequest {
     private String pay_addr4;
     private String scma_oid_pay_province;
     private String scma_oid_country_pay;
+    private String pay_zip_cde;
 
     @Pattern(regexp = "[YN]")
     private String pay_print_in_other_lang_ind;

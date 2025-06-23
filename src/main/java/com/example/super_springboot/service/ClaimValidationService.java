@@ -149,6 +149,15 @@ public class ClaimValidationService {
                         "Country Pay is not specified or invalid", "E401"));
             }
         }
+        // scma_oid_cl_pay_to ------------------------
+        if (request.getScma_oid_cl_pay_to() != null) {
+            String clPayTo = request.getScma_oid_cl_pay_to().trim();
+            Collection<SySysCode> clPayToRs = sySysCodeRepository.getSySysCodeBySmaOid(clPayTo);
+            if (clPayToRs.size() == 0) {
+                errors.add(new ClaimRequestFieldErrorDetail("scma_oid_cl_pay_to",
+                        "CL Pay To is not specified or invalid", "E401"));
+            }
+        }
 
         return errors;
     }

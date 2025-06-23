@@ -37,7 +37,7 @@ public class ClaimService {
 
         // Proceed to process the ClLines
         if(savedClaim != null) {
-            Integer diffDays = Integer.valueOf(DateUtils.diffDay(clli.getIncurDateFrom(), clli.getIncurDateTo()));
+            Integer diffDays = Integer.valueOf(DateUtils.diffDay(clli.getIncurDateTo(), clli.getIncurDateFrom()));
             Long provOid = providerRepository.getProviderOidByName(request.getProvider());
             Long membOid = clli.getMembOid() != null ? clli.getMembOid() : memberRepository.getMembOidByNo(request.getMember_no());
             List<MrPolicyholderProjection> pohoRs = (List<MrPolicyholderProjection>) pohoRepository.getPohoByMbrNo(request.getMember_no());
@@ -50,6 +50,7 @@ public class ClaimService {
             String payProvince = clli.getScmaOidPayProvince() != null ? clli.getScmaOidPayProvince().toString() : poho.getScmaOidBillProvince();
             String countryPay = clli.getScmaOidCountryPay() != null ? clli.getScmaOidCountryPay().toString() : poho.getScmaOidCountryBillAddr();
             String paymentMethod = clli.getScmaOidClPaymentMethod() != null ? clli.getScmaOidClPaymentMethod().toString() : poho.getScmaOidClPayMethod();
+            String payZipCde = clli.getPayZipCde() != null ? clli.getPayZipCde().toString() : poho.getBillZipCde();
 
             clli.setClamOid(savedClaim.getClamOid());
             clli.setLineNo(generateNewLineNo(claim.getClamOid()));
@@ -71,7 +72,7 @@ public class ClaimService {
             clli.setScmaOidCountryPay(countryPay);
             clli.setScmaOidClPaymentMethod(paymentMethod);
             clli.setScmaOidPayProvince(payProvince);
-            clli.setPayZipCde(poho.getBillZipCde());
+            clli.setPayZipCde(payZipCde);
 
             ClLine savedLine = clLineRepository.save(clli);
             if (savedLine != null) {

@@ -29,6 +29,7 @@ public class ClLineMapper {
         clli.setIncurDateFrom(parseDate(req.getStart(), "start", errors));
         clli.setIncurDateTo(parseDate(req.getFinish(), "finish", errors));
         clli.setRcvDate(parseDate(req.getRcv_date(), "rcv_date", errors));
+        clli.setScmaOidClPayTo(req.getScma_oid_cl_pay_to());
 
         // ------------ total_billed ----------------------
         BigDecimal totalBilled = parseBigDecimal(req.getTotal_billed(), "total_billed", errors);
@@ -143,7 +144,7 @@ public class ClLineMapper {
         clli.setScmaOidYnAcc(checkYnFormat(req.getScma_oid_yn_acc(), "scma_oid_yn_acc", errors));
         clli.setScmaOidYnHospitalPdn(
                 checkYnFormat(req.getScma_oid_yn_hospital_pdn(), "scma_oid_yn_hospital_pdn", errors));
-        // clli.setPayZipCde(req.getPay_zip_cde());
+        clli.setPayZipCde(req.getPay_zip_cde());
 
         //---------------------
         String rawMembOid = req.getMemb_oid();

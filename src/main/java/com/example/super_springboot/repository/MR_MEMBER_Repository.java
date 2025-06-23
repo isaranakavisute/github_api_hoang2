@@ -2,6 +2,7 @@ package com.example.super_springboot.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.example.super_springboot.entity.MrMember;
 
@@ -18,5 +19,12 @@ public interface MR_MEMBER_Repository extends JpaRepository<MrMember, Integer> {
         WHERE mbr_no = :mbrNo
         """, nativeQuery = true)
     Collection<MrMember> getMemberByMemberNo(String mbrNo);
+
+    @Query(value = """
+        SELECT memb_oid
+        FROM mr_member
+        WHERE mbr_no = :mbrNo
+        """, nativeQuery = true)
+    Long getMembOidByNo(@Param("mbrNo") String mbrNo);
 }
 

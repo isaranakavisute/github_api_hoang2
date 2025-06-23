@@ -40,7 +40,7 @@ public class ClLine {
     private String stageIdx;
 
     @Column(name = "RCV_DATE", nullable = false)
-    private LocalDateTime rcvDate;
+    private LocalDate rcvDate;
 
     @Column(name = "MEMB_OID", precision = 14, scale = 0)
     private Long membOid;

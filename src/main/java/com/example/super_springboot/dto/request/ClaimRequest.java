@@ -4,12 +4,13 @@ import jakarta.validation.constraints.*;
 
 @Data
 public class ClaimRequest {
+
     @NotBlank(message = "member_no is required")
-    @Pattern(regexp = "\\d{9}", message = "member_no must be 9 digits")
+    //@Pattern(regexp = "\\d{9}", message = "member_no must be 9 digits")
     private String member_no;
 
     @NotBlank(message = "policy_no is required")
-    @Pattern(regexp = "\\d{14}", message = "policy_no must be 14 digits")
+    //@Pattern(regexp = "\\d{14}", message = "policy_no must be 14 digits")
     private String policy_no;
 
     @NotBlank(message = "remarks is required")

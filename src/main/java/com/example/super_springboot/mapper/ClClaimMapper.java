@@ -28,7 +28,7 @@ public class ClClaimMapper {
         if (VALID_CL_STATUSES.contains(clStatus)) {
             cl.setScmaOidClStatus(clStatus);
         } else {
-            errors.add(new ClaimRequestFieldErrorDetail("scma_oid_cl_status", "Invalid value"));
+            errors.add(new ClaimRequestFieldErrorDetail("scma_oid_cl_status", "Invalid value", "E400"));
         }
 
         // ----------- scmaOidYnForcePay -----------
@@ -37,7 +37,7 @@ public class ClClaimMapper {
             if ("YN_Y".equals(forcePay) || "YN_N".equals(forcePay)) {
                 cl.setScmaOidYnForcePay(forcePay);
             } else {
-                errors.add(new ClaimRequestFieldErrorDetail("scma_oid_yn_force_pay", "Invalid value"));
+                errors.add(new ClaimRequestFieldErrorDetail("scma_oid_yn_force_pay", "Invalid value", "E400"));
             }
         }
 

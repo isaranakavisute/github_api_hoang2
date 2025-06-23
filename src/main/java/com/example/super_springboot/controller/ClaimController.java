@@ -17,9 +17,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/claims")
@@ -40,11 +42,11 @@ public class ClaimController {
         if (clLine.getIncurDateFrom() != null && clLine.getIncurDateTo() != null
                 && clLine.getIncurDateFrom().isAfter(clLine.getIncurDateTo())) {
             errors.add(new ClaimRequestFieldErrorDetail("start/finish",
-                    "Start date must be before or equal to finish date"));
+                    "Start date must be before or equal to finish date", "E401"));
         }
 
-        if (clLine.getRcvDate() != null && clLine.getRcvDate().isAfter(LocalDateTime.now())) {
-            errors.add(new ClaimRequestFieldErrorDetail("rcv_date", "Receive date cannot be in the future"));
+        if (clLine.getRcvDate() != null && clLine.getRcvDate().isAfter(LocalDate.now())) {
+            errors.add(new ClaimRequestFieldErrorDetail("rcv_date", "Receive date cannot be in the future", "E401"));
         }
 
         // ------------ Check existence in the database ------------
@@ -64,14 +66,17 @@ public class ClaimController {
                                 .success(false)
                                 .data(List.of())
                                 .message("Claim could not be created")
-                                .code("E500")
+                                .code("E403")
                                 .build());
             }
 
-            List<Object> clResponse = List.of(cl.getClNo());
+            Map<String, Object> clMap = new HashMap<>();
+            clMap.put("claim_no", cl.getClNo());
+            List<Map<String, Object>> clResponse = List.of(clMap);
+            
             return ResponseEntity.ok(ApiResponse.builder()
                     .success(true)
-                    .data(clResponse)
+                    .data(List.of(clResponse))
                     .message("Claim created successfully")
                     .code(200)
                     .build());
@@ -81,7 +86,7 @@ public class ClaimController {
                     .success(false)
                     .data(List.of())
                     .message(ex.getMessage())
-                    .code("E400")
+                    .code("E403")
                     .build());
         }
     }

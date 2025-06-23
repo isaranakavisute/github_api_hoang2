@@ -31,7 +31,7 @@ public class ClLineMapper {
 
         clli.setIncurDateFrom(parseDate(req.getStart(), "start", errors));
         clli.setIncurDateTo(parseDate(req.getFinish(), "finish", errors));
-        clli.setRcvDate(parseDateTime(req.getRcv_date(), "rcv_date", errors));
+        clli.setRcvDate(parseDate(req.getRcv_date(), "rcv_date", errors));
 
         // ------------ total_billed ----------------------
         BigDecimal totalBilled = parseBigDecimal(req.getTotal_billed(), "total_billed", errors);
@@ -52,7 +52,7 @@ public class ClLineMapper {
         if (SCMA_OID_PRODUCTS.contains(scmaOidProduct)) {
             clli.setScmaOidProduct(scmaOidProduct);
         } else {
-            errors.add(new ClaimRequestFieldErrorDetail("scma_oid_product", "Invalid value"));
+            errors.add(new ClaimRequestFieldErrorDetail("scma_oid_product", "Invalid value", "E400"));
         }
 
         // --------------------------------
@@ -70,7 +70,7 @@ public class ClLineMapper {
         if ("CL_TYPE_M".equals(clType) || "CL_TYPE_P".equals(clType)) {
             clli.setScmaOidClType(req.getScma_oid_cl_type());
         } else {
-            errors.add(new ClaimRequestFieldErrorDetail("scma_oid_cl_type", "Invalid value"));
+            errors.add(new ClaimRequestFieldErrorDetail("scma_oid_cl_type", "Invalid value", "E400"));
         }
 
         // --------------------------------
@@ -84,7 +84,7 @@ public class ClLineMapper {
         if (CL_LINE_STATUS_LS.contains(clLineStatus)) {
             clli.setScmaOidClLineStatus(req.getScma_oid_cl_line_status());
         } else {
-            errors.add(new ClaimRequestFieldErrorDetail("scma_oid_cl_line_status", "Invalid value"));
+            errors.add(new ClaimRequestFieldErrorDetail("scma_oid_cl_line_status", "Invalid value", "E400"));
         }
 
         clli.setDiagOid(parseLong(req.getDiag_oid(), "diag_oid", errors));
@@ -124,7 +124,7 @@ public class ClLineMapper {
         if ("Y".equals(payPrintInOtherLangInd) || "N".equals(payPrintInOtherLangInd)) {
             clli.setPayPrintInOtherLangInd(payPrintInOtherLangInd);
         } else {
-            errors.add(new ClaimRequestFieldErrorDetail("pay_print_in_other_lang_ind", "Invalid value"));
+            errors.add(new ClaimRequestFieldErrorDetail("pay_print_in_other_lang_ind", "Invalid value", "E400"));
         }
 
         // ---------------- hospital_number ----------------
@@ -160,21 +160,21 @@ public class ClLineMapper {
 
     private static LocalDate parseDate(String value, String field, List<ClaimRequestFieldErrorDetail> errors) {
         if (value == null || value.isBlank()) {
-            errors.add(new ClaimRequestFieldErrorDetail(field, "Date value is missing"));
+            errors.add(new ClaimRequestFieldErrorDetail(field, "Date value is missing", "E400"));
             return null;
         }
 
         try {
             return LocalDate.parse(value.trim(), DATE_FORMATTER);
         } catch (DateTimeParseException e) {
-            errors.add(new ClaimRequestFieldErrorDetail(field, "Invalid date format, expected yyyy-MM-dd"));
+            errors.add(new ClaimRequestFieldErrorDetail(field, "Invalid date format, expected yyyy-MM-dd", "E400"));
             return null;
         }
     }
 
     private static LocalDateTime parseDateTime(String value, String field, List<ClaimRequestFieldErrorDetail> errors) {
         if (value == null || value.isBlank()) {
-            errors.add(new ClaimRequestFieldErrorDetail(field, "Datetime value is missing"));
+            errors.add(new ClaimRequestFieldErrorDetail(field, "Datetime value is missing", "E400"));
             return null;
         }
 
@@ -182,7 +182,7 @@ public class ClLineMapper {
             return LocalDateTime.parse(value.trim(), DATETIME_FORMATTER);
         } catch (DateTimeParseException e) {
             errors.add(
-                    new ClaimRequestFieldErrorDetail(field, "Invalid datetime format, expected yyyy-MM-dd'T'HH:mm:ss"));
+                    new ClaimRequestFieldErrorDetail(field, "Invalid datetime format, expected yyyy-MM-dd'T'HH:mm:ss", "E400"));
             return null;
         }
     }
@@ -191,21 +191,21 @@ public class ClLineMapper {
         try {
             return Long.parseLong(value);
         } catch (Exception e) {
-            errors.add(new ClaimRequestFieldErrorDetail(field, "Invalid number"));
+            errors.add(new ClaimRequestFieldErrorDetail(field, "Invalid number", "E400"));
             return null;
         }
     }
 
     private static BigDecimal parseBigDecimal(String value, String field, List<ClaimRequestFieldErrorDetail> errors) {
         if (value == null || value.isBlank()) {
-            errors.add(new ClaimRequestFieldErrorDetail(field, "Value is missing"));
+            errors.add(new ClaimRequestFieldErrorDetail(field, "Value is missing", "E400"));
             return null;
         }
 
         try {
             return new BigDecimal(value);
         } catch (NumberFormatException e) {
-            errors.add(new ClaimRequestFieldErrorDetail(field, "Invalid number format"));
+            errors.add(new ClaimRequestFieldErrorDetail(field, "Invalid number format", "E400"));
             return null;
         }
     }
@@ -220,7 +220,7 @@ public class ClLineMapper {
             return yn;
         }
 
-        errors.add(new ClaimRequestFieldErrorDetail(field, "Invalid Y/N format (expected YN_Y or YN_N)"));
+        errors.add(new ClaimRequestFieldErrorDetail(field, "Invalid Y/N format (expected YN_Y or YN_N)", "E400"));
         return null;
     }
 }

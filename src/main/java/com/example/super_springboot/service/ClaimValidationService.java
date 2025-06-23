@@ -45,7 +45,7 @@ public class ClaimValidationService {
             String memberNo = request.getMember_no().trim();
             Collection<MrMember> mbr = memberRepository.getMemberByMemberNo(memberNo);
             if (mbr.size() == 0) {
-                errors.add(new ClaimRequestFieldErrorDetail("member_no", "Member No is not specified or invalid"));
+                errors.add(new ClaimRequestFieldErrorDetail("member_no", "Member No is not specified or invalid", "E401"));
             }
         }
 
@@ -54,7 +54,7 @@ public class ClaimValidationService {
             String pocyNo = request.getPolicy_no().trim();
             Collection<MrPolicy> pocy = policyRepository.getPolicyByPocyNo(pocyNo);
             if (pocy.size() == 0) {
-                errors.add(new ClaimRequestFieldErrorDetail("policy_no", "Policy No is not specified or invalid"));
+                errors.add(new ClaimRequestFieldErrorDetail("policy_no", "Policy No is not specified or invalid", "E401"));
             }
         }
 
@@ -63,14 +63,14 @@ public class ClaimValidationService {
             String poplOid = request.getPopl_oid().trim();
             Collection<MrPolicyPlan> pocyPlan = policyPlanRepository.getPolicyPlanByPoplOid(poplOid);
             if (pocyPlan.size() == 0) {
-                errors.add(new ClaimRequestFieldErrorDetail("popl_oid", "Popl Id is not specified or invalid"));
+                errors.add(new ClaimRequestFieldErrorDetail("popl_oid", "Popl Id is not specified or invalid", "E401"));
             }
         }
         if (request.getBen_popl_oid() != null) {
             String benPoplOid = request.getBen_popl_oid().trim();
             Collection<MrPolicyPlan> benPocyPlan = policyPlanRepository.getPolicyPlanByPoplOid(benPoplOid);
             if (benPocyPlan.size() == 0) {
-                errors.add(new ClaimRequestFieldErrorDetail("ben_popl_oid", "Ben Popl Id is not specified or invalid"));
+                errors.add(new ClaimRequestFieldErrorDetail("ben_popl_oid", "Ben Popl Id is not specified or invalid", "E401"));
             }
         }
 
@@ -79,7 +79,7 @@ public class ClaimValidationService {
             String provName = request.getProvider().trim();
             Collection<PvProvider> prov = providerRepository.getProvByProvName(provName);
             if (prov.size() == 0) {
-                errors.add(new ClaimRequestFieldErrorDetail("provider", "Provider is not specified or invalid"));
+                errors.add(new ClaimRequestFieldErrorDetail("provider", "Provider is not specified or invalid", "E401"));
             }
         }
 
@@ -88,7 +88,7 @@ public class ClaimValidationService {
             String BEHD_OID = request.getBehd_oid().trim();
             Collection<PdBenHead> benHead = benheadRepository.get_BEN_HEAD(Long.parseLong(BEHD_OID));
             if (benHead.size() == 0) {
-                errors.add(new ClaimRequestFieldErrorDetail("behd_oid", "Benefit Head is not specified or invalid"));
+                errors.add(new ClaimRequestFieldErrorDetail("behd_oid", "Benefit Head is not specified or invalid", "E401"));
             }
         }
 
@@ -97,7 +97,7 @@ public class ClaimValidationService {
             String diagOid = request.getDiag_oid().trim();
             Collection<RtDiagnosis> diag = rtDiagnosisRepository.getRtDiagnosisByOid(diagOid);
             if (diag.size() == 0) {
-                errors.add(new ClaimRequestFieldErrorDetail("diag_oid", "Diagnosis Code is not specified or invalid"));
+                errors.add(new ClaimRequestFieldErrorDetail("diag_oid", "Diagnosis Code is not specified or invalid", "E401"));
             }
         }
 
@@ -107,7 +107,7 @@ public class ClaimValidationService {
             Collection<SySysCode> countryRs = sySysCodeRepository.getSySysCodeBySmaOid(country);
             if (countryRs.size() == 0) {
                 errors.add(new ClaimRequestFieldErrorDetail("scma_oid_country_treatment",
-                        "Treatment Country is not specified or invalid"));
+                        "Treatment Country is not specified or invalid", "E401"));
             }
         }
 
@@ -117,7 +117,7 @@ public class ClaimValidationService {
             Collection<SySysCode> ccyPresRs = sySysCodeRepository.getSySysCodeBySmaOid(ccyPres);
             if (ccyPresRs.size() == 0) {
                 errors.add(new ClaimRequestFieldErrorDetail("scma_oid_ccy_pres",
-                        "Presented Currency is not specified or invalid"));
+                        "Presented Currency is not specified or invalid", "E401"));
             }
         }
 
@@ -127,7 +127,7 @@ public class ClaimValidationService {
             Collection<SySysCode> ccyPayRs = sySysCodeRepository.getSySysCodeBySmaOid(ccyPay);
             if (ccyPayRs.size() == 0) {
                 errors.add(new ClaimRequestFieldErrorDetail("scma_oid_ccy_pay",
-                        "Payment Currency is not specified or invalid"));
+                        "Payment Currency is not specified or invalid", "E401"));
             }
         }
 

@@ -25,11 +25,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<ClaimRequestFieldErrorDetail>> handleValidationErrors(MethodArgumentNotValidException ex) {
         List<ClaimRequestFieldErrorDetail> errors = ex.getBindingResult().getFieldErrors().stream()
-            .map(e -> new ClaimRequestFieldErrorDetail(e.getField(), e.getDefaultMessage()))
+            .map(e -> new ClaimRequestFieldErrorDetail(
+                e.getField(),
+                e.getDefaultMessage(),
+                e.getCode() != null ? e.getCode() : "E401"
+            ))
             .collect(Collectors.toList());
 
         return ResponseEntity.badRequest().body(
-            new ApiResponse<>(false, errors, "Validation failed", "E400")
+            new ApiResponse<>(false, errors, "Validation failed", "E401")
         );
     }
 

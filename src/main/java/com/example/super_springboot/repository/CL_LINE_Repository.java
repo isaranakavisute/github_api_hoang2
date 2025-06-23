@@ -20,19 +20,4 @@ public interface CL_LINE_Repository extends JpaRepository<ClLine, Long> {
         """, nativeQuery = true)
     Integer findNextLineNo(@Param("clamOid") Long clamOid);
 
-
-    @Query(value = """
-        SELECT prov_oid
-        FROM pv_provider
-        WHERE prov_name = :provName
-        """, nativeQuery = true)
-    Long getProviderOidByName(@Param("provName") String provName);
-
-    @Query(value = """
-        SELECT memb_oid
-        FROM mr_member
-        WHERE mbr_no = :mbrNo
-        """, nativeQuery = true)
-    Long getMembOidByNo(@Param("mbrNo") String mbrNo);
-
 }

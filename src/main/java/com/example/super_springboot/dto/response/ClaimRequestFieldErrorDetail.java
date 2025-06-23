@@ -8,4 +8,5 @@ import lombok.Data;
 public class ClaimRequestFieldErrorDetail {
     private String field;
     private String message;
+    private String code;
 }

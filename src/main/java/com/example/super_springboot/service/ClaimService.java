@@ -43,13 +43,13 @@ public class ClaimService {
             List<MrPolicyholderProjection> pohoRs = (List<MrPolicyholderProjection>) pohoRepository.getPohoByMbrNo(request.getMember_no());
             MrPolicyholderProjection poho = pohoRs.get(0);
 
-            String payAddr1 = clli.getPayAddr1() != null ? clli.getPayAddr1() : poho.getBillAddr1();
-            String payAddr2 = clli.getPayAddr2() != null ? clli.getPayAddr2() : poho.getBillAddr2();
-            String payAddr3 = clli.getPayAddr3() != null ? clli.getPayAddr3() : poho.getBillAddr3();
-            String payAddr4 = clli.getPayAddr4() != null ? clli.getPayAddr4() : poho.getBillAddr4();
-            String payProvince = clli.getScmaOidPayProvince() != null ? clli.getScmaOidPayProvince() : poho.getScmaOidBillProvince();
-            String countryPay = clli.getScmaOidCountryPay() != null ? clli.getScmaOidCountryPay() : poho.getScmaOidCountryBillAddr();
-            String paymentMethod = clli.getScmaOidClPaymentMethod() != null ? clli.getScmaOidClPaymentMethod() : poho.getScmaOidClPayMethod();
+            String payAddr1 = clli.getPayAddr1() != null ? clli.getPayAddr1().toString() : poho.getBillAddr1();
+            String payAddr2 = clli.getPayAddr2() != null ? clli.getPayAddr2().toString() : poho.getBillAddr2();
+            String payAddr3 = clli.getPayAddr3() != null ? clli.getPayAddr3().toString() : poho.getBillAddr3();
+            String payAddr4 = clli.getPayAddr4() != null ? clli.getPayAddr4().toString() : poho.getBillAddr4();
+            String payProvince = clli.getScmaOidPayProvince() != null ? clli.getScmaOidPayProvince().toString() : poho.getScmaOidBillProvince();
+            String countryPay = clli.getScmaOidCountryPay() != null ? clli.getScmaOidCountryPay().toString() : poho.getScmaOidCountryBillAddr();
+            String paymentMethod = clli.getScmaOidClPaymentMethod() != null ? clli.getScmaOidClPaymentMethod().toString() : poho.getScmaOidClPayMethod();
 
             clli.setClamOid(savedClaim.getClamOid());
             clli.setLineNo(generateNewLineNo(claim.getClamOid()));

@@ -101,7 +101,7 @@ public class ClaimValidationService {
             }
         }
 
-        // diagCode ------------------------
+        // scma_oid_country_treatment ------------------------
         if (request.getScma_oid_country_treatment() != null) {
             String country = request.getScma_oid_country_treatment().trim();
             Collection<SySysCode> countryRs = sySysCodeRepository.getSySysCodeBySmaOid(country);
@@ -128,6 +128,25 @@ public class ClaimValidationService {
             if (ccyPayRs.size() == 0) {
                 errors.add(new ClaimRequestFieldErrorDetail("scma_oid_ccy_pay",
                         "Payment Currency is not specified or invalid", "E401"));
+            }
+        }
+
+        // scma_oid_pay_province ------------------------
+        if (request.getScma_oid_pay_province() != null) {
+            String payProvince = request.getScma_oid_pay_province().trim();
+            Collection<SySysCode> payProvinceRs = sySysCodeRepository.getSySysCodeBySmaOid(payProvince);
+            if (payProvinceRs.size() == 0) {
+                errors.add(new ClaimRequestFieldErrorDetail("scma_oid_pay_province",
+                        "Pay Province is not specified or invalid", "E401"));
+            }
+        }
+        // scma_oid_country_pay ------------------------
+        if (request.getScma_oid_country_pay() != null) {
+            String countryPay = request.getScma_oid_country_pay().trim();
+            Collection<SySysCode> countryPayRs = sySysCodeRepository.getSySysCodeBySmaOid(countryPay);
+            if (countryPayRs.size() == 0) {
+                errors.add(new ClaimRequestFieldErrorDetail("scma_oid_country_pay",
+                        "Country Pay is not specified or invalid", "E401"));
             }
         }
 

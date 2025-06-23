@@ -17,9 +17,6 @@ public class ClClaimMapper {
 
         ClClaim cl = new ClClaim();
 
-        // ----------- rcv date -----------
-        // LocalDateTime rcvDate = parseDateTime(req.getRcv_date(), "rcv_date", errors);
-        // cl.setClNo(parseDateTime(req.getRcv_date()));
         cl.setScmaOidClStatus(req.getMember_no());
 
         // ----------- scma_oid_cl_status-----------

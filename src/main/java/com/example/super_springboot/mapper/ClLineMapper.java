@@ -14,7 +14,6 @@ import java.util.Set;
 
 public class ClLineMapper {
 
-    private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final Set<String> YN_LS = Set.of("YN_N", "YN_Y");
     private static final Set<String> SCMA_OID_PRODUCTS = Set.of(
@@ -23,8 +22,6 @@ public class ClLineMapper {
     private static final Set<String> CL_LINE_STATUS_LS = Set.of(
             "CL_LINE_STATUS_PV", "CL_LINE_STATUS_PD", "CL_LINE_STATUS_SU", "CL_LINE_STATUS_AC",
             "CL_LINE_STATUS_RJ", "CL_LINE_STATUS_RV", "CL_LINE_STATUS_IC", "CL_LINE_STATUS_UE");
-    private static final Set<String> CL_PAYMENT_METHOD_LS = Set.of(
-            "CL_PAYMENT_METHOD_CQ", "CL_PAYMENT_METHOD_AT", "CL_PAYMENT_METHOD_TT", "CL_PAYMENT_METHOD_SP");
 
     public static ClLine toEntity(ClaimRequest req, List<ClaimRequestFieldErrorDetail> errors) {
         ClLine clli = new ClLine();
@@ -160,19 +157,19 @@ public class ClLineMapper {
             clli.setPayAddr1(rawPayAddr1.trim());
         };
         //---------------------
-        String rawPayAddr2 = req.getPay_addr1();
+        String rawPayAddr2 = req.getPay_addr2();
         if( rawPayAddr2 != null) {
             clli.setPayAddr2(rawPayAddr2.trim());
         };
         //---------------------
-        String rawPayAddr3 = req.getPay_addr1();
+        String rawPayAddr3 = req.getPay_addr3();
         if( rawPayAddr3 != null) {
-            clli.setPayAddr1(rawPayAddr3.trim());
+            clli.setPayAddr3(rawPayAddr3.trim());
         };
         //---------------------
-        String rawPayAddr4 = req.getPay_addr1();
+        String rawPayAddr4 = req.getPay_addr4();
         if( rawPayAddr4 != null) {
-            clli.setPayAddr1(rawPayAddr4.trim());
+            clli.setPayAddr4(rawPayAddr4.trim());
         };
         //---------------------
         String rawPayProvince = req.getScma_oid_pay_province();
@@ -190,8 +187,7 @@ public class ClLineMapper {
             clli.setScmaOidClPaymentMethod(rawPaymentMethod.trim());
         };
 
-        //
-
+        //---------------------
         String rawCrtUser = req.getCrt_user();
         String crtUser = (rawCrtUser != null) ? rawCrtUser.trim() : "API";
         clli.setCrtUser(crtUser);
@@ -212,21 +208,6 @@ public class ClLineMapper {
             return LocalDate.parse(value.trim(), DATE_FORMATTER);
         } catch (DateTimeParseException e) {
             errors.add(new ClaimRequestFieldErrorDetail(field, "Invalid date format, expected yyyy-MM-dd", "E400"));
-            return null;
-        }
-    }
-
-    private static LocalDateTime parseDateTime(String value, String field, List<ClaimRequestFieldErrorDetail> errors) {
-        if (value == null || value.isBlank()) {
-            errors.add(new ClaimRequestFieldErrorDetail(field, "Datetime value is missing", "E400"));
-            return null;
-        }
-
-        try {
-            return LocalDateTime.parse(value.trim(), DATETIME_FORMATTER);
-        } catch (DateTimeParseException e) {
-            errors.add(
-                    new ClaimRequestFieldErrorDetail(field, "Invalid datetime format, expected yyyy-MM-dd'T'HH:mm:ss", "E400"));
             return null;
         }
     }

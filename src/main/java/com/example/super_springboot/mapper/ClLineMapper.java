@@ -148,6 +148,50 @@ public class ClLineMapper {
                 checkYnFormat(req.getScma_oid_yn_hospital_pdn(), "scma_oid_yn_hospital_pdn", errors));
         // clli.setPayZipCde(req.getPay_zip_cde());
 
+        //---------------------
+        String rawMembOid = req.getMemb_oid();
+        if( rawMembOid != null) {
+            clli.setMembOid(parseLong(rawMembOid, "memb_oid", errors));
+        };
+        
+        //---------------------
+        String rawPayAddr1 = req.getPay_addr1();
+        if( rawPayAddr1 != null) {
+            clli.setPayAddr1(rawPayAddr1.trim());
+        };
+        //---------------------
+        String rawPayAddr2 = req.getPay_addr1();
+        if( rawPayAddr2 != null) {
+            clli.setPayAddr2(rawPayAddr2.trim());
+        };
+        //---------------------
+        String rawPayAddr3 = req.getPay_addr1();
+        if( rawPayAddr3 != null) {
+            clli.setPayAddr1(rawPayAddr3.trim());
+        };
+        //---------------------
+        String rawPayAddr4 = req.getPay_addr1();
+        if( rawPayAddr4 != null) {
+            clli.setPayAddr1(rawPayAddr4.trim());
+        };
+        //---------------------
+        String rawPayProvince = req.getScma_oid_pay_province();
+        if( rawPayProvince != null) {
+            clli.setScmaOidPayProvince(rawPayProvince.trim());
+        };
+        //---------------------
+        String rawCountryPay = req.getScma_oid_country_pay();
+        if( rawCountryPay != null) {
+            clli.setScmaOidCountryPay(rawCountryPay.trim());
+        };
+        //---------------------
+        String rawPaymentMethod = req.getScma_oid_cl_payment_method();
+        if( rawPaymentMethod != null) {
+            clli.setScmaOidClPaymentMethod(rawPaymentMethod.trim());
+        };
+
+        //
+
         String rawCrtUser = req.getCrt_user();
         String crtUser = (rawCrtUser != null) ? rawCrtUser.trim() : "API";
         clli.setCrtUser(crtUser);

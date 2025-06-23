@@ -81,6 +81,7 @@ public class ClaimRequest {
     private String pay_addr2;
     private String pay_addr3;
     private String pay_addr4;
+    private String scma_oid_pay_province;
     private String scma_oid_country_pay;
 
     @Pattern(regexp = "[YN]")

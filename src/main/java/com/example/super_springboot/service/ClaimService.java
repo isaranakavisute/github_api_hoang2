@@ -39,9 +39,17 @@ public class ClaimService {
         if(savedClaim != null) {
             Integer diffDays = Integer.valueOf(DateUtils.diffDay(clli.getIncurDateFrom(), clli.getIncurDateTo()));
             Long provOid = providerRepository.getProviderOidByName(request.getProvider());
-            Long membOid = memberRepository.getMembOidByNo(request.getMember_no());
+            Long membOid = clli.getMembOid() != null ? clli.getMembOid() : memberRepository.getMembOidByNo(request.getMember_no());
             List<MrPolicyholderProjection> pohoRs = (List<MrPolicyholderProjection>) pohoRepository.getPohoByMbrNo(request.getMember_no());
             MrPolicyholderProjection poho = pohoRs.get(0);
+
+            String payAddr1 = clli.getPayAddr1() != null ? clli.getPayAddr1() : poho.getBillAddr1();
+            String payAddr2 = clli.getPayAddr2() != null ? clli.getPayAddr2() : poho.getBillAddr2();
+            String payAddr3 = clli.getPayAddr3() != null ? clli.getPayAddr3() : poho.getBillAddr3();
+            String payAddr4 = clli.getPayAddr4() != null ? clli.getPayAddr4() : poho.getBillAddr4();
+            String payProvince = clli.getScmaOidPayProvince() != null ? clli.getScmaOidPayProvince() : poho.getScmaOidBillProvince();
+            String countryPay = clli.getScmaOidCountryPay() != null ? clli.getScmaOidCountryPay() : poho.getScmaOidCountryBillAddr();
+            String paymentMethod = clli.getScmaOidClPaymentMethod() != null ? clli.getScmaOidClPaymentMethod() : poho.getScmaOidClPayMethod();
 
             clli.setClamOid(savedClaim.getClamOid());
             clli.setLineNo(generateNewLineNo(claim.getClamOid()));
@@ -56,13 +64,13 @@ public class ClaimService {
             //.behdOid(lineRequest.getBehd_oid())
             //.diagOid(lineRequest.getDiag_oid())
 
-            clli.setPayAddr1(poho.getBillAddr1());
-            clli.setPayAddr2(poho.getBillAddr2());
-            clli.setPayAddr3(poho.getBillAddr3());
-            clli.setPayAddr4(poho.getBillAddr4());
-            clli.setScmaOidCountryPay(poho.getScmaOidCountryBillAddr());
-            clli.setScmaOidClPaymentMethod(poho.getScmaOidClPayMethod());
-            clli.setScmaOidPayProvince(poho.getScmaOidBillProvince());
+            clli.setPayAddr1(payAddr1);
+            clli.setPayAddr2(payAddr2);
+            clli.setPayAddr3(payAddr3);
+            clli.setPayAddr4(payAddr4);
+            clli.setScmaOidCountryPay(countryPay);
+            clli.setScmaOidClPaymentMethod(paymentMethod);
+            clli.setScmaOidPayProvince(payProvince);
             clli.setPayZipCde(poho.getBillZipCde());
 
             ClLine savedLine = clLineRepository.save(clli);

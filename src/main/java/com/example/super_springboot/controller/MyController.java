@@ -46,8 +46,8 @@ import java.util.Map;
 
 @RestController
 public class MyController {
-    @Autowired
-    private UserService userService;
+    // @Autowired
+    // private UserService userService;
 
     @Autowired
     private ADODB_LOGSQLRepository1 ADODB_LOGSQLRepository1;

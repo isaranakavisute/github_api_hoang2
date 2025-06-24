@@ -207,6 +207,118 @@ public class MyController {
         }
     }
 
+
+    @PostMapping(path="/inquiry_personal_information2")
+    public List<member_info> inquiry_personal_information2(@RequestParam Map<String, String> requestParams) {
+
+        //String MBR_NO = requestParams.get("MBR_NO");
+        //String ID_CARD_NO = requestParams.get("ID_CARD_NO");
+        //String TIN = requestParams.get("TIN");
+        //member_info member_info_obj = new member_info();
+        List<member_info> member_info_list = new ArrayList<>();
+        List<MrMember> member_obj = (List<MrMember>) mr_member_repository.get_1000_records();
+        //if (member_obj.size() >= 1)
+        for (int i=0 ; i < member_obj.size() ; i++ )
+        {
+            member_info member_info_obj = new member_info();
+
+            member_info_obj.setMember_no(member_obj.get(i).getMbrNo());
+            member_info_obj.setEmpid(member_obj.get(i).getMbrNo());
+            member_info_obj.setMemb_oid(member_obj.get(i).getMemb_oid());
+            member_info_obj.setName(member_obj.get(i).getMbr_first_name() + " " +  member_obj.get(i).getMbr_last_name());
+            member_info_obj.setDate_of_birth(member_obj.get(i).getDOB());
+            member_info_obj.setAccount_no(member_obj.get(i).getCL_PAY_ACCT_NO());
+            member_info_obj.setMember_type(member_obj.get(i).getSCMA_OID_MBR_TYPE());
+            member_info_obj.setMarital_status(member_obj.get(i).getSCMA_OID_CIVIL_STATUS());
+            member_info_obj.setGender(member_obj.get(i).getSCMA_OID_SEX());
+            member_info_obj.setId_card(member_obj.get(i).getID_CARD_NO());
+            member_info_obj.setMember_refno(member_obj.get(i).getCUSM_REF_NO());
+            //member_info_obj.setPplan(pdplan_obj.get(0).getPlan_no().trim());
+            member_info_obj.setPplan(member_obj.get(i).getPLAN_NO());
+            List<MrMemberPlan> member_plan_obj = (List<MrMemberPlan>) mr_member_plan_repository.get_POPL_OID(member_obj.get(i).getMemb_oid());
+            if (member_plan_obj.size() >= 1)
+            {
+                member_info_obj.setStart_date(member_plan_obj.get(0).getEff_date());
+                member_info_obj.setEnd_date(member_plan_obj.get(0).getExp_date());
+
+                LocalDate today = LocalDate.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"); // Adjust format as needed
+                LocalDate TargetDate = LocalDate.parse(member_info_obj.getEnd_date(), formatter);
+
+                if (TargetDate.isAfter(today))
+                    member_info_obj.setStatus("Active");
+                else
+                    member_info_obj.setStatus("Inactive");
+
+                member_info_obj.setPOPL_OID(member_plan_obj.get(0).getPoplOid());
+                List<MrPolicyPlan> policy_plan_obj = (List<MrPolicyPlan>) my_policy_plan_repository.get_POCY_OID(member_plan_obj.get(0).getPoplOid());
+                if (policy_plan_obj.size() >= 1)
+                {
+                    member_info_obj.setPOCY_OID(policy_plan_obj.get(0).getPocyOid());
+                    List<MrPolicy> policy_obj = (List<MrPolicy>) mr_policy_repository.get_policy_no(policy_plan_obj.get(0).getPocyOid());
+                    if (policy_obj.size() >= 1)
+                    {
+                        member_info_obj.setPolicy_no(policy_obj.get(0).getPocyNo());
+                        member_info_obj.setGroup_id(policy_obj.get(0).getPocyNo());
+                        member_info_obj.setRef_policyno(policy_obj.get(0).getLMG_NO());
+                        List<MrPolicyholder> policy_holder_obj = (List<MrPolicyholder>) my_policy_holder_repository.get_poho_name(policy_obj.get(0).getPohoOid());
+                        if (policy_holder_obj.size() >= 1) {
+                            member_info_obj.setBranch(policy_holder_obj.get(0).getCustomer_branch());
+                            member_info_obj.setPolicy_holder(policy_holder_obj.get(0).getPoho_name_1() + " " + policy_holder_obj.get(0).getPoho_name_2());
+                            member_info_obj.setCompany_name(policy_holder_obj.get(0).getPoho_name_1() + " " + policy_holder_obj.get(0).getPoho_name_2());
+                            member_info_obj.setPolicy_type(policy_holder_obj.get(0).getSCMA_OID_POHO_TYPE());
+                            List<PdPlan> pdplan_obj = (List<PdPlan>) pd_plan_repository.get_PLAN_ID(policy_plan_obj.get(0).getPlanOid());
+                            if (pdplan_obj.size() >= 1) {
+                                member_info_obj.setToc(pdplan_obj.get(0).getPlanId());
+                                //member_info_obj.setPplan(pdplan_obj.get(0).getPlan_no().trim());
+                            } else {
+                                //return member_info_obj;
+                                member_info_list.add(member_info_obj);
+                                return member_info_list;
+                            }
+                        }
+                        else
+                        {
+                            //return member_info_obj;
+                            member_info_list.add(member_info_obj);
+                            return member_info_list;
+                        }
+                    }
+                    else
+                    {
+                        //return member_info_obj;
+                        member_info_list.add(member_info_obj);
+                        return member_info_list;
+                    }
+                }
+                else
+                {
+                    //return member_info_obj;
+                    member_info_list.add(member_info_obj);
+                    return member_info_list;
+                }
+            }
+            else
+            {
+                //return member_info_obj;
+                member_info_list.add(member_info_obj);
+                return member_info_list;
+            }
+            //return member_info_obj;
+            member_info_list.add(member_info_obj);
+            //return member_info_list;
+        }
+//        else
+//        {
+//            //return member_info_obj;
+//            member_info_list.add(member_info_obj);
+//            return member_info_list;
+//        }
+        return member_info_list;
+    }
+
+
+
     @PostMapping(path="/inquiry_benefit")
     public member_info inquiry_benefit(@RequestParam Map<String, String> requestParams) {
         //String MBR_NO = requestParams.get("MBR_NO");

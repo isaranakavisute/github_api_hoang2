@@ -2,6 +2,9 @@ package com.example.super_springboot.repository;
 
 import com.example.super_springboot.entity.ClClaim;
 
+import jakarta.persistence.Column;
+
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,8 +28,12 @@ public interface CL_CLAIM_Repository extends JpaRepository<ClClaim, Long> {
     )
     String findNextClaimSuffix(@Param("prefix") String prefix);
 
-     @Query(value = "SELECT CLAM_OID,CL_NO,SCMA_OID_CL_STATUS,REMARK FROM CL_CLAIM where CLAM_OID=:CLAM_OID", nativeQuery = true)
+     @Query(value = "SELECT CLAM_OID,CL_NO,SCMA_OID_CL_STATUS,REMARK,SCMA_OID_YN_FORCE_PAY,CRT_USER,CRT_DATE,UPD_USER,UPD_DATE FROM CL_CLAIM where CLAM_OID=:CLAM_OID", nativeQuery = true)
     Collection<ClClaim> get_CL_CLaim_From_CLAIM_OID(Long CLAM_OID);
+
+    
+
+   
 
     
 }

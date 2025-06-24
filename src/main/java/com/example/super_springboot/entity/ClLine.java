@@ -324,6 +324,103 @@ public class ClLine {
     @Column(name = "PROV_NAME", length = 200)
     private String provName;
 
+    @Column(name = "SCMA_OID_CL_PAY_TO", length = 20)
+    private String scmaOidClPayTo;
+
+    @Column(name = "ORG_PRES_AMT", precision = 15, scale = 4)
+    private BigDecimal orgPresAmt;
+
+    @Column(name = "ORG_ADJ_PRES_AMT", precision = 15, scale = 4)
+    private BigDecimal orgAdjPresAmt;
+
+    @Column(name = "ADJ_PRES_AMT", precision = 15, scale = 4)
+    private BigDecimal adjPresAmt;
+
+    @Column(name = "BEN_POPL_OID", precision = 14, scale = 0)
+    private Long benPoplOid;
+
+    @Column(name = "POPL_OID", precision = 14, scale = 0)
+    private Long poplOid;
+     
+    @Pattern(regexp = "^COUNTRY_\\d{3}$", message = "The format code must follow the COUNTRY_XXX format")
+    @Column(name = "SCMA_OID_COUNTRY_TREATMENT", length = 20)
+    private String scmaOidCountryTreatment;
+
+    @Column(name = "STAGE_IDX", length = 2)
+    private String stageIdx;
+
+    @Column(name = "BEHD_OID", precision = 14, scale = 0)
+    private Long behdOid;
+
+    @Column(name = "DIAG_OID", precision = 14, scale = 0)
+    private Long diagOid;
+
+    @Column(name = "SCMA_OID_YN_ER", length = 20)
+    private String scmaOidYnEr;
+
+    @Column(name = "SCMA_OID_YN_TREAT_PLAN", length = 20)
+    private String scmaOidYnTreatPlan;
+
+    @Column(name = "SCMA_OID_YN_WP", length = 20)
+    private String scmaOidYnWp;
+
+    @Pattern(regexp = "^CCY_[A-Z]{3}$", message = "The format code must follow the CCY_XXX format (Ex: CCY_THB)")
+    @Column(name = "SCMA_OID_CCY_PRES", length = 20)
+    private String scmaOidCcyPres;
+
+    @Column(name = "FX_RATE", precision = 13, scale = 4)
+    private BigDecimal fxRate;
+
+    @Column(name = "SCMA_OID_CCY_PAY", length = 20)
+    private String scmaOidCcyPay;
+
+    @Column(name = "PAY_FX_RATE", precision = 13, scale = 4)
+    private BigDecimal payFxRate;
+
+    @Column(name = "REMARK", length = 4000)
+    private String remarks;
+
+    @Column(name = "PEND_VAL", length = 1)
+    private String pendVal;
+
+    @Column(name = "PAY_PRINT_IN_OTHER_LANG_IND")
+    private String payPrintInOtherLangInd;
+
+    @Column(name = "HOSPITAL_NUMBER", length = 100)
+    private String hospitalNumber;
+
+    @Column(name = "HOSP_SUB_NO", length = 20)
+    private String hospSubNo;
+
+    @Column(name = "CL_PAY_VOUCHER", length = 15)
+    private String clPayVoucher;
+
+    @Column(name = "SCMA_OID_YN_ACC", length = 10)
+    private String scmaOidYnAcc;
+
+    @Column(name = "SCMA_OID_YN_HOSPITAL_PDN", length = 10)
+    private String scmaOidYnHospitalPdn;
+
+    @Column(name = "CRT_USER", length = 10)
+    private String crtUser;
+
+    @Column(name = "CRT_DATE")
+    private LocalDateTime crtDate;
+
+    @Column(name = "UPD_USER", length = 10)
+    private String updUser;
+
+    @Column(name = "UPD_DATE")
+    private LocalDateTime updDate;
+
+    @Column(name = "SCMA_OID_PRODUCT", length = 20, nullable = false)
+    private String scmaOidProduct;
+
+    
+   
+
+    
+
 
 
      

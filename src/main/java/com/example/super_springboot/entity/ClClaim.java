@@ -82,6 +82,21 @@ public class ClClaim {
     @Size(max = 2000)
     @Column(name = "REMARK", length = 2000)
     private String remark;
+
+    @Column(name = "SCMA_OID_YN_FORCE_PAY", length = 20, nullable = false)
+    private String scmaOidYnForcePay;
+
+    @Column(name = "CRT_USER", length = 10)
+    private String crtUser;
+
+    @Column(name = "CRT_DATE")
+    private LocalDateTime crtDate;
+
+    @Column(name = "UPD_USER", length = 10)
+    private String updUser;
+
+    @Column(name = "UPD_DATE")
+    private LocalDateTime updDate;
 }
 
 

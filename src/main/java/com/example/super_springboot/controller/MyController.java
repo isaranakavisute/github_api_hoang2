@@ -6,6 +6,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.super_springboot.dto.SQL1;
 import com.example.super_springboot.dto.response.claim_info;
+import com.example.super_springboot.dto.response.inquiry_personal_information;
+import com.example.super_springboot.dto.response.inquiry_benefit;
+import com.example.super_springboot.dto.response.inquiry_claim_header;
+import com.example.super_springboot.dto.response.inquiry_claim_detail;
 import com.example.super_springboot.dto.response.member_info;
 import com.example.super_springboot.entity.ADODB_LOGSQL;
 import com.example.super_springboot.entity.ClClaim;
@@ -214,35 +218,30 @@ public class MyController {
         }
     }
 
-
     @PostMapping(path="/inquiry_personal_information2")
-    public List<member_info> inquiry_personal_information2(@RequestParam Map<String, String> requestParams) {
-
-        //String MBR_NO = requestParams.get("MBR_NO");
-        //String ID_CARD_NO = requestParams.get("ID_CARD_NO");
-        //String TIN = requestParams.get("TIN");
-        //member_info member_info_obj = new member_info();
-        List<member_info> member_info_list = new ArrayList<>();
-        List<MrMember> member_obj = (List<MrMember>) mr_member_repository.get_1000_records();
-        //if (member_obj.size() >= 1)
-        for (int i=0 ; i < member_obj.size() ; i++ )
+    //public List<member_info> inquiry_personal_information2(@RequestParam Map<String, String> requestParams) {
+    public List<inquiry_personal_information> inquiry_personal_information2(@RequestParam Map<String, String> requestParams) {
+        //List<member_info> member_info_list = new ArrayList<>();
+        List<inquiry_personal_information> member_info_list = new ArrayList<>();
+        List<String> thousand_members = (List<String>) mr_member_repository.get_1000_active_members();
+        for (int i=0 ; i < thousand_members.size() ; i++ )
         {
-            member_info member_info_obj = new member_info();
-
-            member_info_obj.setMember_no(member_obj.get(i).getMbrNo());
-            member_info_obj.setEmpid(member_obj.get(i).getMbrNo());
-            member_info_obj.setMemb_oid(member_obj.get(i).getMemb_oid());
-            member_info_obj.setName(member_obj.get(i).getMbr_first_name() + " " +  member_obj.get(i).getMbr_last_name());
-            member_info_obj.setDate_of_birth(member_obj.get(i).getDOB());
-            member_info_obj.setAccount_no(member_obj.get(i).getCL_PAY_ACCT_NO());
-            member_info_obj.setMember_type(member_obj.get(i).getSCMA_OID_MBR_TYPE());
-            member_info_obj.setMarital_status(member_obj.get(i).getSCMA_OID_CIVIL_STATUS());
-            member_info_obj.setGender(member_obj.get(i).getSCMA_OID_SEX());
-            member_info_obj.setId_card(member_obj.get(i).getID_CARD_NO());
-            member_info_obj.setMember_refno(member_obj.get(i).getCUSM_REF_NO());
-            //member_info_obj.setPplan(pdplan_obj.get(0).getPlan_no().trim());
-            member_info_obj.setPplan(member_obj.get(i).getPLAN_NO());
-            List<MrMemberPlan> member_plan_obj = (List<MrMemberPlan>) mr_member_plan_repository.get_POPL_OID(member_obj.get(i).getMemb_oid());
+            //member_info member_info_obj = new member_info();
+            inquiry_personal_information member_info_obj = new inquiry_personal_information();
+            List<MrMember> member_obj = (List<MrMember>) mr_member_repository.get_MEMB_OID_From_MBR_NO(thousand_members.get(i));
+            member_info_obj.setMember_no(member_obj.get(0).getMbrNo());
+            member_info_obj.setEmpid(member_obj.get(0).getMbrNo());
+            //member_info_obj.setMemb_oid(member_obj.get(0).getMemb_oid());
+            member_info_obj.setName(member_obj.get(0).getMbr_first_name() + " " +  member_obj.get(0).getMbr_last_name());
+            member_info_obj.setDate_of_birth(member_obj.get(0).getDOB());
+            member_info_obj.setAccount_no(member_obj.get(0).getCL_PAY_ACCT_NO());
+            member_info_obj.setMember_type(member_obj.get(0).getSCMA_OID_MBR_TYPE());
+            member_info_obj.setMarital_status(member_obj.get(0).getSCMA_OID_CIVIL_STATUS());
+            member_info_obj.setGender(member_obj.get(0).getSCMA_OID_SEX());
+            member_info_obj.setId_card(member_obj.get(0).getID_CARD_NO());
+            member_info_obj.setMember_refno(member_obj.get(0).getCUSM_REF_NO());
+            member_info_obj.setPplan(member_obj.get(0).getPLAN_NO());
+            List<MrMemberPlan> member_plan_obj = (List<MrMemberPlan>) mr_member_plan_repository.get_POPL_OID(member_obj.get(0).getMemb_oid());
             if (member_plan_obj.size() >= 1)
             {
                 member_info_obj.setStart_date(member_plan_obj.get(0).getEff_date());
@@ -257,11 +256,11 @@ public class MyController {
                 else
                     member_info_obj.setStatus("Inactive");
 
-                member_info_obj.setPOPL_OID(member_plan_obj.get(0).getPoplOid());
+                //member_info_obj.setPOPL_OID(member_plan_obj.get(0).getPoplOid());
                 List<MrPolicyPlan> policy_plan_obj = (List<MrPolicyPlan>) my_policy_plan_repository.get_POCY_OID(member_plan_obj.get(0).getPoplOid());
                 if (policy_plan_obj.size() >= 1)
                 {
-                    member_info_obj.setPOCY_OID(policy_plan_obj.get(0).getPocyOid());
+                    //member_info_obj.setPOCY_OID(policy_plan_obj.get(0).getPocyOid());
                     List<MrPolicy> policy_obj = (List<MrPolicy>) mr_policy_repository.get_policy_no(policy_plan_obj.get(0).getPocyOid());
                     if (policy_obj.size() >= 1)
                     {
@@ -461,56 +460,60 @@ public class MyController {
     }
 
     @PostMapping(path="/inquiry_benefit2")
-    public member_info inquiry_benefit2(@RequestParam Map<String, String> requestParams) {
+    //public member_info inquiry_benefit2(@RequestParam Map<String, String> requestParams) {
+    public inquiry_benefit inquiry_benefit2(@RequestParam Map<String, String> requestParams) {
         String MBR_NO = requestParams.get("MBR_NO");
         //String ID_CARD_NO = requestParams.get("ID_CARD_NO");
         //String TIN = requestParams.get("TIN");
-        member_info member_info_obj = new member_info();
+
+        //member_info member_info_obj = new member_info();
+        inquiry_benefit member_info_obj = new inquiry_benefit();
+
         List<MrMember> member_obj = (List<MrMember>) mr_member_repository.get_MEMB_OID_From_MBR_NO(MBR_NO);
         if (member_obj.size() >= 1)
         {
             member_info_obj.setMember_no(member_obj.get(0).getMbrNo());
-            member_info_obj.setEmpid(member_obj.get(0).getMbrNo());
-            member_info_obj.setMemb_oid(member_obj.get(0).getMemb_oid());
-            member_info_obj.setName(member_obj.get(0).getMbr_first_name() + " " +  member_obj.get(0).getMbr_last_name());
-            member_info_obj.setDate_of_birth(member_obj.get(0).getDOB());
-            member_info_obj.setAccount_no(member_obj.get(0).getCL_PAY_ACCT_NO());
-            member_info_obj.setMember_type(member_obj.get(0).getSCMA_OID_MBR_TYPE());
-            member_info_obj.setMarital_status(member_obj.get(0).getSCMA_OID_CIVIL_STATUS());
-            member_info_obj.setGender(member_obj.get(0).getSCMA_OID_SEX());
-            member_info_obj.setId_card(member_obj.get(0).getID_CARD_NO());
-            member_info_obj.setMember_refno(member_obj.get(0).getCUSM_REF_NO());
+            // member_info_obj.setEmpid(member_obj.get(0).getMbrNo());
+            // member_info_obj.setMemb_oid(member_obj.get(0).getMemb_oid());
+            // member_info_obj.setName(member_obj.get(0).getMbr_first_name() + " " +  member_obj.get(0).getMbr_last_name());
+            // member_info_obj.setDate_of_birth(member_obj.get(0).getDOB());
+            // member_info_obj.setAccount_no(member_obj.get(0).getCL_PAY_ACCT_NO());
+            // member_info_obj.setMember_type(member_obj.get(0).getSCMA_OID_MBR_TYPE());
+            // member_info_obj.setMarital_status(member_obj.get(0).getSCMA_OID_CIVIL_STATUS());
+            // member_info_obj.setGender(member_obj.get(0).getSCMA_OID_SEX());
+            // member_info_obj.setId_card(member_obj.get(0).getID_CARD_NO());
+            // member_info_obj.setMember_refno(member_obj.get(0).getCUSM_REF_NO());
             List<MrMemberPlan> member_plan_obj = (List<MrMemberPlan>) mr_member_plan_repository.get_MEPL_OID(member_obj.get(0).getMemb_oid());
             if (member_plan_obj.size() >= 1)
             {
-                member_info_obj.setStart_date(member_plan_obj.get(0).getEff_date());
-                member_info_obj.setEnd_date(member_plan_obj.get(0).getExp_date());
+                // member_info_obj.setStart_date(member_plan_obj.get(0).getEff_date());
+                // member_info_obj.setEnd_date(member_plan_obj.get(0).getExp_date());
 
-                LocalDate today = LocalDate.now();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"); // Adjust format as needed
-                LocalDate TargetDate = LocalDate.parse(member_info_obj.getEnd_date(), formatter);
+                // LocalDate today = LocalDate.now();
+                // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"); // Adjust format as needed
+                // LocalDate TargetDate = LocalDate.parse(member_info_obj.getEnd_date(), formatter);
 
-                if (TargetDate.isAfter(today))
-                    member_info_obj.setStatus("Active");
-                else
-                    member_info_obj.setStatus("Inactive");
+                // if (TargetDate.isAfter(today))
+                //     member_info_obj.setStatus("Active");
+                // else
+                //     member_info_obj.setStatus("Inactive");
 
-                member_info_obj.setPOPL_OID(member_plan_obj.get(0).getPoplOid());
+                // member_info_obj.setPOPL_OID(member_plan_obj.get(0).getPoplOid());
 
 
 
                 List<MrMemberPlanBenefit> member_plan_benefit_obj = (List<MrMemberPlanBenefit>) mr_member_plan_benefit_repository.get_POBE_OID(member_plan_obj.get(0).getMepl_Oid());
                 if (member_plan_benefit_obj.size() >= 1)
                 {
-                    member_info_obj.setPOBE_OID(member_plan_benefit_obj.get(0).getPobeOid());
+                    //member_info_obj.setPOBE_OID(member_plan_benefit_obj.get(0).getPobeOid());
                     List<MrPolicyPlanBenefit> policy_plan_benefit_obj = (List<MrPolicyPlanBenefit>) my_policy_plan_benefit_repository.get_PLBE_OID(member_plan_benefit_obj.get(0).getPobeOid());
                     if (policy_plan_benefit_obj.size() >= 1)
                     {
-                        member_info_obj.setPLBE_OID(policy_plan_benefit_obj.get(0).getPLBE_OID());
+                        //member_info_obj.setPLBE_OID(policy_plan_benefit_obj.get(0).getPLBE_OID());
                         List<PdPlanBenefit> pd_plan_benefit_obj = (List<PdPlanBenefit>) pd_plan_benefit_repository.get_BEHD_OID(policy_plan_benefit_obj.get(0).getPLBE_OID());
                         if (pd_plan_benefit_obj.size() >= 1)
                         {
-                            member_info_obj.setBEHD_OID(pd_plan_benefit_obj.get(0).getBehdOid());
+                            //member_info_obj.setBEHD_OID(pd_plan_benefit_obj.get(0).getBehdOid());
                             List<PdBenHead> pd_ben_head_obj = (List<PdBenHead>) pd_ben_head_repository.get_BEN_HEAD(pd_plan_benefit_obj.get(0).getBehdOid());
                             if (pd_ben_head_obj.size() >= 1)
                             {
@@ -544,19 +547,19 @@ public class MyController {
                 List<MrPolicyPlan> policy_plan_obj = (List<MrPolicyPlan>) my_policy_plan_repository.get_POCY_OID(member_plan_obj.get(0).getPoplOid());
                 if (policy_plan_obj.size() >= 1)
                 {
-                    member_info_obj.setPOCY_OID(policy_plan_obj.get(0).getPocyOid());
+                    //member_info_obj.setPOCY_OID(policy_plan_obj.get(0).getPocyOid());
                     List<MrPolicy> policy_obj = (List<MrPolicy>) mr_policy_repository.get_policy_no(policy_plan_obj.get(0).getPocyOid());
                     if (policy_obj.size() >= 1)
                     {
                         member_info_obj.setPolicy_no(policy_obj.get(0).getPocyNo());
-                        member_info_obj.setGroup_id(policy_obj.get(0).getPocyNo());
-                        member_info_obj.setRef_policyno(policy_obj.get(0).getLMG_NO());
+                        //member_info_obj.setGroup_id(policy_obj.get(0).getPocyNo());
+                        //member_info_obj.setRef_policyno(policy_obj.get(0).getLMG_NO());
                         List<MrPolicyholder> policy_holder_obj = (List<MrPolicyholder>) my_policy_holder_repository.get_poho_name(policy_obj.get(0).getPohoOid());
                         if (policy_holder_obj.size() >= 1) {
-                            member_info_obj.setBranch(policy_holder_obj.get(0).getCustomer_branch());
-                            member_info_obj.setPolicy_holder(policy_holder_obj.get(0).getPoho_name_1() + " " + policy_holder_obj.get(0).getPoho_name_2());
-                            member_info_obj.setCompany_name(policy_holder_obj.get(0).getPoho_name_1() + " " + policy_holder_obj.get(0).getPoho_name_2());
-                            member_info_obj.setPolicy_type(policy_holder_obj.get(0).getSCMA_OID_POHO_TYPE());
+                            //member_info_obj.setBranch(policy_holder_obj.get(0).getCustomer_branch());
+                            //member_info_obj.setPolicy_holder(policy_holder_obj.get(0).getPoho_name_1() + " " + policy_holder_obj.get(0).getPoho_name_2());
+                            //member_info_obj.setCompany_name(policy_holder_obj.get(0).getPoho_name_1() + " " + policy_holder_obj.get(0).getPoho_name_2());
+                            //member_info_obj.setPolicy_type(policy_holder_obj.get(0).getSCMA_OID_POHO_TYPE());
 
                             List<PdPlan> pdplan_obj = (List<PdPlan>) pd_plan_repository.get_PLAN_ID(policy_plan_obj.get(0).getPlanOid());
                             if (pdplan_obj.size() >= 1) {
@@ -731,6 +734,94 @@ public class MyController {
         return claim_info_obj;
     }
 
+    @PostMapping(path="/inquiry_claim_header2")
+    //public List<claim_info> inquiry_claim_header2(@RequestParam Map<String, String> requestParams) {
+    public List<inquiry_claim_header> inquiry_claim_header2(@RequestParam Map<String, String> requestParams) {
+      
+        String MBR_NO = requestParams.get("MBR_NO");
+        List<MrMember> member_obj = (List<MrMember>) mr_member_repository.get_MEMB_OID_From_MBR_NO(MBR_NO);
+        List<ClLine> cline_objs = (List<ClLine>) cl_line_repository.get_CL_Line_From_Memb(member_obj.get(0).getMemb_oid());
+        
+        //List<claim_info> claim_info_list = new ArrayList<>();  
+        List<inquiry_claim_header> claim_info_list = new ArrayList<>();  
+        
+        for (int i = 0 ; i < cline_objs.size() ; i++)
+        {
+            //claim_info claim_info_obj = new claim_info();
+            inquiry_claim_header claim_info_obj = new inquiry_claim_header();
+
+            List<ClClaim> claim_obj = (List<ClClaim>) cl_claim_repository.get_CL_CLaim_From_CLAIM_OID(cline_objs.get(i).getClamOid());
+            if (claim_obj.size() >= 1) {
+                //claim_info_obj.setClaim_id(claim_obj.get(0).getClamOid());
+                claim_info_obj.setClaim_no(claim_obj.get(0).getClNo());
+                claim_info_obj.setStatus(claim_obj.get(0).getScmaOidClStatus());
+                claim_info_obj.setStatus_th(claim_obj.get(0).getScmaOidClStatus());
+                List<ClLine> cline_obj = (List<ClLine>) cl_line_repository.get_CL_Line(claim_obj.get(0).getClamOid());          
+                if (cline_obj.size() >= 1) {
+                    LocalDate min_incur_date_from = cline_obj.get(0).getIncurDateFrom();
+                    for (int j = 0 ; j < cline_obj.size() ; j++)
+                    {
+                        if (cline_obj.get(j).getIncurDateFrom().compareTo(min_incur_date_from) < 0)
+                        {
+                            min_incur_date_from = cline_obj.get(j).getIncurDateFrom();
+                        }
+                    }
+                    claim_info_obj.setStart(min_incur_date_from.toString());
+                    LocalDate max_incur_date_to = cline_obj.get(0).getIncurDateTo();
+                    for (int j = 0 ; j < cline_obj.size() ; j++)
+                    {
+                        if (cline_obj.get(j).getIncurDateTo().compareTo(max_incur_date_to) > 0)
+                        {
+                            max_incur_date_to = cline_obj.get(j).getIncurDateTo();
+                        }
+                    }
+                    claim_info_obj.setFinish(max_incur_date_to.toString());
+                    claim_info_obj.setClaim_type(cline_obj.get(0).getScmaOidClType());
+                    BigDecimal result = BigDecimal.valueOf(0);
+                    for (int j = 0 ; j < cline_obj.size() ; j++)
+                    {
+                        result = result.add(cline_obj.get(j).getPresAmt());
+                    }
+                    claim_info_obj.setBilled(result);
+                    result = BigDecimal.valueOf(0);
+                    for (int j = 0 ; j < cline_obj.size() ; j++)
+                    {
+                        result = result.add(cline_obj.get(j).getAppAmt());
+                    }
+                    claim_info_obj.setAccepted(result);
+                    result = BigDecimal.valueOf(0);
+                    for (int j = 0 ; j < cline_obj.size() ; j++)
+                    {
+                        result = result.add(cline_obj.get(j).getPresAmt().subtract(cline_obj.get(j).getAppAmt()));
+                    }
+                    claim_info_obj.setUnpaid(result);
+                    claim_info_obj.setCash_member(cline_obj.get(0).getPriorPaid());
+                    claim_info_obj.setTotal_paid(cline_obj.get(0).getPayAmt());
+                    claim_info_obj.setCoverage(cline_obj.get(0).getScmaOidBedType());
+
+                    if (cline_obj.get(0).getChqDate()==null)
+                    {
+                        claim_info_obj.setPayment_date("");
+                    }
+                    else
+                    {
+                     claim_info_obj.setPayment_date(cline_obj.get(0).getChqDate().toString());
+                    }
+                    claim_info_obj.setStatus_code(cline_obj.get(0).getScmaOidClLineStatus());
+                    claim_info_obj.setPay_to(cline_obj.get(0).getPayee());
+                } else {
+                    claim_info_list.add(claim_info_obj);
+                    return claim_info_list;
+                } 
+            } else {
+                claim_info_list.add(claim_info_obj);
+                return claim_info_list;
+            }
+            claim_info_list.add(claim_info_obj);
+        }
+        return claim_info_list;
+    }
+
     @PostMapping(path="/inquiry_claim_detail")
     public claim_info inquiry_claim_detail(@RequestParam Map<String, String> requestParams) {
 
@@ -770,6 +861,118 @@ public class MyController {
             return claim_info_obj;
         }
         return claim_info_obj;
+    }
+
+
+     @PostMapping(path="/inquiry_claim_detail2")
+    //public List<claim_info> inquiry_claim_detail2(@RequestParam Map<String, String> requestParams) {
+    public List<inquiry_claim_detail> inquiry_claim_detail2(@RequestParam Map<String, String> requestParams) {
+        //List<ClClaim> claim_obj = (List<ClClaim>) cl_claim_repository.get_CL_Line_From_Memb();
+        String MBR_NO = requestParams.get("MBR_NO");
+        //List<MrMember> member_obj = (List<MrMember>) mr_member_repository.get_MEMB_OID_From_MBR_NO(MBR_NO);
+        List<MrMember> member_obj = (List<MrMember>) mr_member_repository.get_MEMB_OID_From_MBR_NO(MBR_NO);
+        List<ClLine> cline_objs = (List<ClLine>) cl_line_repository.get_CL_Line_From_Memb(member_obj.get(0).getMemb_oid());
+        //List<claim_info> claim_info_list = new ArrayList<>();
+        List<inquiry_claim_detail> claim_info_list = new ArrayList<>();
+        for (int i = 0 ; i < cline_objs.size() ; i++)
+        {
+            //sql_obj.setSQL1(list_obj.get(i).getSQL1());
+            //retval.add(sql_obj);
+            //String CLAIM_NO = requestParams.get("CLAIM_NO");
+            //cline_objs.get(i).getClamOid();
+
+            //claim_info claim_info_obj = new claim_info();
+            inquiry_claim_detail claim_info_obj = new inquiry_claim_detail();
+
+            //List<claim_info> claim_info_list = new ArrayList<>();
+            //List<ClClaim> claim_obj = (List<ClClaim>) cl_claim_repository.get_CL_CLaim(CLAIM_NO);
+            List<ClClaim> claim_obj = (List<ClClaim>) cl_claim_repository.get_CL_CLaim_From_CLAIM_OID(cline_objs.get(i).getClamOid());
+
+            if (claim_obj.size() >= 1)
+            {
+                claim_info_obj.setClaim_id(claim_obj.get(0).getClamOid());
+                claim_info_obj.setClaim_id(claim_obj.get(0).getClamOid());
+                claim_info_obj.setClaim_no(claim_obj.get(0).getClNo());
+                //claim_info_obj.setStatus(claim_obj.get(0).getScmaOidClStatus());
+                //claim_info_obj.setStatus_th(claim_obj.get(0).getScmaOidClStatus());
+                List<ClLine> cline_obj = (List<ClLine>) cl_line_repository.get_CL_Line(claim_obj.get(0).getClamOid());
+                if (cline_obj.size() >= 1) {
+
+                    LocalDate min_incur_date_from = cline_obj.get(0).getIncurDateFrom();
+                    for (int j = 0 ; j < cline_obj.size() ; j++)
+                    {
+                        if (cline_obj.get(j).getIncurDateFrom().compareTo(min_incur_date_from) < 0)
+                        {
+                            min_incur_date_from = cline_obj.get(j).getIncurDateFrom();
+                        }
+                    }
+
+                    //claim_info_obj.setStart(cline_obj.get(0).getIncurDateFrom().toString());
+                    //claim_info_obj.setStart(min_incur_date_from.toString());
+
+                    LocalDate max_incur_date_to = cline_obj.get(0).getIncurDateTo();
+                    for (int j = 0 ; j < cline_obj.size() ; j++)
+                    {
+                        if (cline_obj.get(j).getIncurDateTo().compareTo(max_incur_date_to) > 0)
+                        {
+                            max_incur_date_to = cline_obj.get(j).getIncurDateTo();
+                        }
+                    }
+                    //claim_info_obj.setFinish(cline_obj.get(0).getIncurDateTo().toString());
+                    //claim_info_obj.setFinish(max_incur_date_to.toString());
+
+                    //claim_info_obj.setClaim_type(cline_obj.get(0).getScmaOidClType());
+
+                    BigDecimal result = BigDecimal.valueOf(0);
+                    for (int j = 0 ; j < cline_obj.size() ; j++)
+                    {
+                        result = result.add(cline_obj.get(j).getPresAmt());
+                    }
+
+                    claim_info_obj.setBilled(result);
+
+                    result = BigDecimal.valueOf(0);
+                    for (int j = 0 ; j < cline_obj.size() ; j++)
+                    {
+                        result = result.add(cline_obj.get(j).getAppAmt());
+                    }
+
+                    claim_info_obj.setAccepted(result);
+
+                    result = BigDecimal.valueOf(0);
+                    for (int j = 0 ; j < cline_obj.size() ; j++)
+                    {
+                        result = result.add(cline_obj.get(j).getPresAmt().subtract(cline_obj.get(j).getAppAmt()));
+                    }
+                    claim_info_obj.setUnpaid(result);
+
+                    claim_info_obj.setCash_member(cline_obj.get(0).getPriorPaid());
+                    //claim_info_obj.setTotal_paid(cline_obj.get(0).getPayAmt());
+                    //claim_info_obj.setCoverage(cline_obj.get(0).getScmaOidBedType());
+                    if (cline_obj.get(0).getChqDate()==null)
+                    {
+                        //claim_info_obj.setPayment_date("");
+                    }
+                    else
+                    {
+                        //claim_info_obj.setPayment_date(cline_obj.get(0).getPayDate().toString());
+                        //claim_info_obj.setPayment_date(cline_obj.get(0).getChqDate().toString());
+                    }
+                    //claim_info_obj.setStatus_code(cline_obj.get(0).getScmaOidClLineStatus());
+                    //claim_info_obj.setPay_to(cline_obj.get(0).getPayee());
+                    claim_info_obj.setBenefit_description(cline_obj.get(0).getScmaOidBedType());
+                } else {
+                    claim_info_list.add(claim_info_obj);
+                    return claim_info_list;
+                }
+            } else
+            {
+                claim_info_list.add(claim_info_obj);
+                return claim_info_list;
+            }
+            claim_info_list.add(claim_info_obj);
+        }
+        return claim_info_list;
     }
 
 

@@ -3,6 +3,7 @@ package com.example.super_springboot.repository;
 import com.example.super_springboot.entity.ClClaim;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,4 +24,9 @@ public interface CL_CLAIM_Repository extends JpaRepository<ClClaim, Long> {
         nativeQuery = true
     )
     String findNextClaimSuffix(@Param("prefix") String prefix);
+
+     @Query(value = "SELECT CLAM_OID,CL_NO,SCMA_OID_CL_STATUS,REMARK FROM CL_CLAIM where CLAM_OID=:CLAM_OID", nativeQuery = true)
+    Collection<ClClaim> get_CL_CLaim_From_CLAIM_OID(Long CLAM_OID);
+
+    
 }

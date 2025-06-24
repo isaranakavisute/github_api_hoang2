@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 
 @Entity
 @Table(name = "CL_CLAIM")
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ClClaim {
 
+    /* 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence")
     @SequenceGenerator(
@@ -52,4 +54,35 @@ public class ClClaim {
 
     @Column(name = "UPD_DATE")
     private LocalDateTime updDate;
+    */
+
+    // @Id
+    // @Column(name = "CLAM_OID", nullable = false)
+    // private Long id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence")
+    @SequenceGenerator(
+        name = "sequence",
+        sequenceName = "HIBERNATE_SEQUENCE",
+        allocationSize = 1
+    )
+    @Column(name = "CLAM_OID", nullable = false, precision = 14, scale = 0)
+    private Long clamOid;
+
+    @Size(max = 10)
+    @NotNull
+    @Column(name = "CL_NO", nullable = false, length = 10)
+    private String clNo;
+
+    @NotNull
+    @Column(name = "SCMA_OID_CL_STATUS", nullable = false)
+    private String scmaOidClStatus;
+
+    @Size(max = 2000)
+    @Column(name = "REMARK", length = 2000)
+    private String remark;
 }
+
+
+

@@ -41,6 +41,12 @@ public class member_info {
     private Long BEHD_OID;
     private String BEN_HEAD;
     private String coverage;
+    private String BenefitName;
+    private String BenefitUnit;
+    private String BenefitLimit;
+    private String AnnualLimit;
+    private String CoverageVal;
+    private String AnnualUnit;
 
 
 
@@ -80,7 +86,12 @@ public class member_info {
         this.BEHD_OID = (long) 0;
         this.BEN_HEAD = "";
         this.coverage = "";
-
+        this.BenefitName = "";
+        this.BenefitUnit = "";
+        this.BenefitLimit = "";;
+        this.AnnualLimit = "";;
+        this.CoverageVal = "";;
+        this.AnnualUnit  = "";;
     }
 
 }

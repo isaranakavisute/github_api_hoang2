@@ -132,8 +132,8 @@ public class MyController {
         return checkdb();
     }
 
-    @PostMapping(path="/inquiry_personal_information")
-    public member_info inquiry_personal_information(@RequestParam Map<String, String> requestParams) {
+    @PostMapping(path="/inquiry_personal_information_old")
+    public member_info inquiry_personal_information_old(@RequestParam Map<String, String> requestParams) {
 
         //String MBR_NO = requestParams.get("MBR_NO");
         String ID_CARD_NO = requestParams.get("ID_CARD_NO");
@@ -223,9 +223,9 @@ public class MyController {
         }
     }
 
-    @PostMapping(path="/inquiry_personal_information2")
-    //public List<member_info> inquiry_personal_information2(@RequestParam Map<String, String> requestParams) {
-    public List<inquiry_personal_information> inquiry_personal_information2(@RequestParam Map<String, String> requestParams) {
+    @PostMapping(path="/inquiry_personal_information")
+    //public List<member_info> inquiry_personal_information(@RequestParam Map<String, String> requestParams) {
+    public List<inquiry_personal_information> inquiry_personal_information(@RequestParam Map<String, String> requestParams) {
         //List<member_info> member_info_list = new ArrayList<>();
         String upd_date = requestParams.get("upd_date");
         String seq = requestParams.get("seq");
@@ -376,8 +376,8 @@ public class MyController {
         return member_info_list;
     }
 
-    @PostMapping(path="/inquiry_benefit")
-    public member_info inquiry_benefit(@RequestParam Map<String, String> requestParams) {
+    @PostMapping(path="/inquiry_benefit_old")
+    public member_info inquiry_benefit_old(@RequestParam Map<String, String> requestParams) {
         //String MBR_NO = requestParams.get("MBR_NO");
         String ID_CARD_NO = requestParams.get("ID_CARD_NO");
         //String TIN = requestParams.get("TIN");
@@ -512,9 +512,9 @@ public class MyController {
         }
     }
 
-    @PostMapping(path="/inquiry_benefit2")
-    //public member_info inquiry_benefit2(@RequestParam Map<String, String> requestParams) {
-    public inquiry_benefit inquiry_benefit2(@RequestParam Map<String, String> requestParams) {
+    @PostMapping(path="/inquiry_benefit")
+    //public member_info inquiry_benefit(@RequestParam Map<String, String> requestParams) {
+    public inquiry_benefit inquiry_benefit(@RequestParam Map<String, String> requestParams) {
         String MBR_NO = requestParams.get("MBR_NO");
         //String ID_CARD_NO = requestParams.get("ID_CARD_NO");
         //String TIN = requestParams.get("TIN");
@@ -747,8 +747,8 @@ public class MyController {
     }
 
 
-    @PostMapping(path="/inquiry_claim_header")
-    public claim_info inquiry_claim_header(@RequestParam Map<String, String> requestParams) {
+    @PostMapping(path="/inquiry_claim_header_old")
+    public claim_info inquiry_claim_header_old(@RequestParam Map<String, String> requestParams) {
 
         String CLAIM_NO = requestParams.get("CLAIM_NO");
         claim_info claim_info_obj = new claim_info();
@@ -787,9 +787,9 @@ public class MyController {
         return claim_info_obj;
     }
 
-    @PostMapping(path="/inquiry_claim_header2")
+    @PostMapping(path="/inquiry_claim_header")
     //public List<claim_info> inquiry_claim_header2(@RequestParam Map<String, String> requestParams) {
-    public List<inquiry_claim_header> inquiry_claim_header2(@RequestParam Map<String, String> requestParams) {
+    public List<inquiry_claim_header> inquiry_claim_header(@RequestParam Map<String, String> requestParams) {
       
         String MBR_NO = requestParams.get("MBR_NO");
         List<MrMember> member_obj = (List<MrMember>) mr_member_repository.get_MEMB_OID_From_MBR_NO(MBR_NO);
@@ -875,8 +875,8 @@ public class MyController {
         return claim_info_list;
     }
 
-    @PostMapping(path="/inquiry_claim_detail")
-    public claim_info inquiry_claim_detail(@RequestParam Map<String, String> requestParams) {
+    @PostMapping(path="/inquiry_claim_detail_old")
+    public claim_info inquiry_claim_detail_old(@RequestParam Map<String, String> requestParams) {
 
         String CLAIM_NO = requestParams.get("CLAIM_NO");
         claim_info claim_info_obj = new claim_info();
@@ -917,9 +917,9 @@ public class MyController {
     }
 
 
-     @PostMapping(path="/inquiry_claim_detail2")
+     @PostMapping(path="/inquiry_claim_detail")
     //public List<claim_info> inquiry_claim_detail2(@RequestParam Map<String, String> requestParams) {
-    public List<inquiry_claim_detail> inquiry_claim_detail2(@RequestParam Map<String, String> requestParams) {
+    public List<inquiry_claim_detail> inquiry_claim_detail(@RequestParam Map<String, String> requestParams) {
         //List<ClClaim> claim_obj = (List<ClClaim>) cl_claim_repository.get_CL_Line_From_Memb();
         String MBR_NO = requestParams.get("MBR_NO");
         //List<MrMember> member_obj = (List<MrMember>) mr_member_repository.get_MEMB_OID_From_MBR_NO(MBR_NO);

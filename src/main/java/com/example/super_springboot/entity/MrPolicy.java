@@ -1,6 +1,8 @@
 package com.example.super_springboot.entity;
 
 
+import java.time.LocalDate;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -27,5 +29,10 @@ public class MrPolicy  {
 
     @Column(name = "LMG_NO", nullable = false, length = 14)
     private String LMG_NO;
+
+    @Column(name = "EXP_DATE", nullable = false)
+    private LocalDate EXP_DATE;
+
+   
 
 }

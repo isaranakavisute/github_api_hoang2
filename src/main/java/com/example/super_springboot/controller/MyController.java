@@ -45,11 +45,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.math.BigDecimal;
+import java.util.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @RestController
@@ -222,13 +227,56 @@ public class MyController {
     //public List<member_info> inquiry_personal_information2(@RequestParam Map<String, String> requestParams) {
     public List<inquiry_personal_information> inquiry_personal_information2(@RequestParam Map<String, String> requestParams) {
         //List<member_info> member_info_list = new ArrayList<>();
+        String upd_date = requestParams.get("upd_date");
+        String seq = requestParams.get("seq");
         List<inquiry_personal_information> member_info_list = new ArrayList<>();
-        List<String> thousand_members = (List<String>) mr_member_repository.get_1000_active_members();
+
+        LocalDate today = LocalDate.now();
+        // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy"); // Adjust format as needed
+        // today = LocalDate.parse(today.toString(), formatter);
+        //String today_str = String.valueOf(today.getDayOfMonth()) + String.valueOf(today.getMonthValue()) + String.valueOf(today.getYear()); 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+        //today = today.format(formatter);
+        String today_str = today.format(formatter);
+
+        //formatter = DateTimeFormatter.ofPattern("dd-MMM-yy", Locale.ENGLISH);
+        formatter = new DateTimeFormatterBuilder()
+                .parseCaseInsensitive()
+                .appendPattern("dd-MMM-yy")
+                .toFormatter(Locale.getDefault());
+        String daybefore="";
+        try {
+            Date target_date = new SimpleDateFormat("dd-MMM-yy").parse(upd_date);
+            LocalDate previous_date = LocalDate.of(target_date.getYear(), target_date.getMonth()+1, target_date.getDate());
+            previous_date = previous_date.minusDays(1);
+            daybefore = previous_date.format(formatter);
+            daybefore = daybefore.toUpperCase();
+            //daybefore = previous_date.toString();
+        } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        //LocalDate.of(target_date.getYear(), target_date.getMonth()+1, target_date.getDate());
+        // LocalDate previous_date = target_date.minusDays(1);
+        // String daybefore = previous_date.format(formatter);
+
+        Long begining_seq = (long) (((Integer.valueOf(seq)) - 1) * 1000) + 1;
+        Long ending_seq = (long) Integer.valueOf(seq) * 1000;
+
+        //System.out.println(upd_date + "=>" + daybefore + "=>" + begining_seq + "=>" + ending_seq + "=>" + today_str);
+
+        System.out.println(upd_date + "=>" + daybefore + "=>" + begining_seq + "=>" + ending_seq + "=>" + today_str);
+
+
+        List<Long> thousand_members = (List<Long>) mr_member_repository.get_1000_active_members(upd_date,daybefore,today_str);
         for (int i=0 ; i < thousand_members.size() ; i++ )
         {
+            if (( i < (begining_seq-1)) || (i > (ending_seq-1)))
+             continue;
+
             //member_info member_info_obj = new member_info();
             inquiry_personal_information member_info_obj = new inquiry_personal_information();
-            List<MrMember> member_obj = (List<MrMember>) mr_member_repository.get_MEMB_OID_From_MBR_NO(thousand_members.get(i));
+            List<MrMember> member_obj = (List<MrMember>) mr_member_repository.get_MEMBER_From_MEMB_OID(thousand_members.get(i));
             member_info_obj.setMember_no(member_obj.get(0).getMbrNo());
             member_info_obj.setEmpid(member_obj.get(0).getMbrNo());
             //member_info_obj.setMemb_oid(member_obj.get(0).getMemb_oid());
@@ -247,14 +295,16 @@ public class MyController {
                 member_info_obj.setStart_date(member_plan_obj.get(0).getEff_date());
                 member_info_obj.setEnd_date(member_plan_obj.get(0).getExp_date());
 
-                LocalDate today = LocalDate.now();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"); // Adjust format as needed
-                LocalDate TargetDate = LocalDate.parse(member_info_obj.getEnd_date(), formatter);
+                // LocalDate today = LocalDate.now();
+                // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"); // Adjust format as needed
+                // LocalDate TargetDate = LocalDate.parse(member_info_obj.getEnd_date(), formatter);
 
-                if (TargetDate.isAfter(today))
-                    member_info_obj.setStatus("Active");
-                else
-                    member_info_obj.setStatus("Inactive");
+                // if (TargetDate.isAfter(today))
+                //     member_info_obj.setStatus("Active");
+                // else
+                //     member_info_obj.setStatus("Inactive");
+
+                member_info_obj.setStatus("Active");
 
                 //member_info_obj.setPOPL_OID(member_plan_obj.get(0).getPoplOid());
                 List<MrPolicyPlan> policy_plan_obj = (List<MrPolicyPlan>) my_policy_plan_repository.get_POCY_OID(member_plan_obj.get(0).getPoplOid());
@@ -264,6 +314,9 @@ public class MyController {
                     List<MrPolicy> policy_obj = (List<MrPolicy>) mr_policy_repository.get_policy_no(policy_plan_obj.get(0).getPocyOid());
                     if (policy_obj.size() >= 1)
                     {
+                        //member_info_obj.setStart_date(member_plan_obj.get(0).getEff_date());
+                        //member_info_obj.setEnd_date(policy_obj.get(0).getEXP_DATE().toString());
+                        
                         member_info_obj.setPolicy_no(policy_obj.get(0).getPocyNo());
                         member_info_obj.setGroup_id(policy_obj.get(0).getPocyNo());
                         member_info_obj.setRef_policyno(policy_obj.get(0).getLMG_NO());

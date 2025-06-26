@@ -44,6 +44,10 @@ import com.example.super_springboot.repository.PD_PLAN_LIMIT_Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.text.ParseException;
@@ -1027,6 +1031,163 @@ public class MyController {
         }
         return claim_info_list;
     }
+
+
+
+
+
+
+    
+
+
+
+    
+    @PostMapping(path="/write_active_member_to_file")
+    public member_info write_active_member_to_file(@RequestParam Map<String, String> requestParams) throws IOException 
+    {
+        //BufferedReader reader = new BufferedReader(new FileReader("active_member_memb_oid.txt"));
+        FileWriter fileWriter = new FileWriter("temp.csv", false);
+        String line;
+        member_info member_info_obj = new member_info();
+        LocalDate today = LocalDate.now();
+        // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy"); // Adjust format as needed
+        // today = LocalDate.parse(today.toString(), formatter);
+        //String today_str = String.valueOf(today.getDayOfMonth()) + String.valueOf(today.getMonthValue()) + String.valueOf(today.getYear()); 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+        //today = today.format(formatter);
+        String today_str = today.format(formatter);
+        List<Long> thousand_members = (List<Long>) mr_member_repository.get_all_active_members(today_str);
+        //while ((line = reader.readLine()) != null)
+        for (int i = 0 ; i < thousand_members.size() ; i++)
+        {
+            List<MrMember> member_obj = (List<MrMember>) mr_member_repository.get_MEMBER_From_MEMB_OID(thousand_members.get(i));
+            if (member_obj.size() >= 1) {
+
+                member_info_obj.setMember_no(member_obj.get(0).getMbrNo());
+                fileWriter.write(member_obj.get(0).getMbrNo() + ",");
+
+                member_info_obj.setEmpid(member_obj.get(0).getMbrNo());
+                fileWriter.write(member_obj.get(0).getMbrNo() + ",");
+
+                member_info_obj.setMemb_oid(member_obj.get(0).getMemb_oid());
+                fileWriter.write(member_obj.get(0).getMemb_oid().toString() + ",");
+
+                member_info_obj.setName(member_obj.get(0).getMbr_first_name() + " " + member_obj.get(0).getMbr_last_name());
+                fileWriter.write(member_obj.get(0).getMbr_first_name() + " " + member_obj.get(0).getMbr_last_name() + ",");
+
+                member_info_obj.setDate_of_birth(member_obj.get(0).getDOB());
+                fileWriter.write(member_obj.get(0).getDOB() + ",");
+
+                member_info_obj.setAccount_no(member_obj.get(0).getCL_PAY_ACCT_NO());
+                fileWriter.write(member_obj.get(0).getCL_PAY_ACCT_NO() + ",");
+
+                member_info_obj.setMember_type(member_obj.get(0).getSCMA_OID_MBR_TYPE());
+                fileWriter.write(member_obj.get(0).getSCMA_OID_MBR_TYPE() + ",");
+
+                member_info_obj.setMarital_status(member_obj.get(0).getSCMA_OID_CIVIL_STATUS());
+                fileWriter.write(member_obj.get(0).getSCMA_OID_CIVIL_STATUS() + ",");
+
+                member_info_obj.setGender(member_obj.get(0).getSCMA_OID_SEX());
+                fileWriter.write(member_obj.get(0).getSCMA_OID_SEX() + ",");
+
+                member_info_obj.setId_card(member_obj.get(0).getID_CARD_NO());
+                fileWriter.write(member_obj.get(0).getID_CARD_NO() + ",");
+
+                member_info_obj.setMember_refno(member_obj.get(0).getCUSM_REF_NO());
+                fileWriter.write(member_obj.get(0).getCUSM_REF_NO() + ",");
+
+                member_info_obj.setPplan(member_obj.get(0).getPLAN_NO());
+                fileWriter.write(member_obj.get(0).getPLAN_NO() + ",");
+
+                List<MrMemberPlan> member_plan_obj = (List<MrMemberPlan>) mr_member_plan_repository.get_POPL_OID(member_obj.get(0).getMemb_oid());
+                if (member_plan_obj.size() >= 1) {
+                    member_info_obj.setStart_date(member_plan_obj.get(0).getEff_date());
+                    fileWriter.write(member_plan_obj.get(0).getEff_date() + ",");
+
+                    member_info_obj.setEnd_date(member_plan_obj.get(0).getExp_date());
+                    fileWriter.write(member_plan_obj.get(0).getExp_date() + ",");
+
+                    today = LocalDate.now();
+                    formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"); // Adjust format as needed
+                    LocalDate TargetDate = LocalDate.parse(member_info_obj.getEnd_date(), formatter);
+
+                    if (TargetDate.isAfter(today)) {
+                        // member_info_obj.setStatus("Active");
+                        // fileWriter.write("Active" + ",");
+                    }
+                    else {
+                        // member_info_obj.setStatus("Inactive");
+                        // fileWriter.write("Inactive" + ",");
+                    }
+
+                    member_info_obj.setStatus("Active");
+                    fileWriter.write("Active" + ",");
+
+                    member_info_obj.setPOPL_OID(member_plan_obj.get(0).getPoplOid());
+                    fileWriter.write(member_plan_obj.get(0).getPoplOid() + ",");
+
+                    List<MrPolicyPlan> policy_plan_obj = (List<MrPolicyPlan>) my_policy_plan_repository.get_POCY_OID(member_plan_obj.get(0).getPoplOid());
+                    if (policy_plan_obj.size() >= 1) {
+                        member_info_obj.setPOCY_OID(policy_plan_obj.get(0).getPocyOid());
+                        fileWriter.write(policy_plan_obj.get(0).getPocyOid() + ",");
+
+
+                        List<MrPolicy> policy_obj = (List<MrPolicy>) mr_policy_repository.get_policy_no(policy_plan_obj.get(0).getPocyOid());
+                        if (policy_obj.size() >= 1) {
+                            member_info_obj.setPolicy_no(policy_obj.get(0).getPocyNo());
+                            fileWriter.write(policy_obj.get(0).getPocyNo() + ",");
+
+                            member_info_obj.setGroup_id(policy_obj.get(0).getPocyNo());
+                            fileWriter.write(policy_obj.get(0).getPocyNo() + ",");
+
+                            member_info_obj.setRef_policyno(policy_obj.get(0).getLMG_NO());
+                            fileWriter.write(policy_obj.get(0).getLMG_NO() + ",");
+
+                            List<MrPolicyholder> policy_holder_obj = (List<MrPolicyholder>) my_policy_holder_repository.get_poho_name(policy_obj.get(0).getPohoOid());
+                            if (policy_holder_obj.size() >= 1) {
+                                member_info_obj.setBranch(policy_holder_obj.get(0).getCustomer_branch());
+                                fileWriter.write(policy_holder_obj.get(0).getCustomer_branch() + ",");
+
+                                member_info_obj.setPolicy_holder(policy_holder_obj.get(0).getPoho_name_1() + " " + policy_holder_obj.get(0).getPoho_name_2());
+                                fileWriter.write(policy_holder_obj.get(0).getPoho_name_1() + " " + policy_holder_obj.get(0).getPoho_name_2() + ",");
+
+                                member_info_obj.setCompany_name(policy_holder_obj.get(0).getPoho_name_1() + " " + policy_holder_obj.get(0).getPoho_name_2());
+                                fileWriter.write(policy_holder_obj.get(0).getPoho_name_1() + " " + policy_holder_obj.get(0).getPoho_name_2());
+
+                                member_info_obj.setPolicy_type(policy_holder_obj.get(0).getSCMA_OID_POHO_TYPE());
+                                fileWriter.write(policy_holder_obj.get(0).getSCMA_OID_POHO_TYPE() + ",");
+
+                                List<PdPlan> pdplan_obj = (List<PdPlan>) pd_plan_repository.get_PLAN_ID(policy_plan_obj.get(0).getPlanOid());
+                                if (pdplan_obj.size() >= 1) {
+                                    member_info_obj.setToc(pdplan_obj.get(0).getPlanId());
+                                    fileWriter.write(pdplan_obj.get(0).getPlanId() + ",");
+
+                                    //member_info_obj.setPplan(pdplan_obj.get(0).getPlan_no().trim());
+                                } else {
+                                    return member_info_obj;
+                                }
+                            } else {
+                                return member_info_obj;
+                            }
+                        } else {
+                            return member_info_obj;
+                        }
+                    } else {
+                        return member_info_obj;
+                    }
+                } else {
+                    return member_info_obj;
+                }
+            } else {
+                return member_info_obj;
+            }
+            fileWriter.write("\n");
+        }
+        fileWriter.close();
+        //reader.close();
+        return member_info_obj;
+    }
+
 
 
 

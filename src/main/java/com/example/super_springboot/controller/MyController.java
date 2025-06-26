@@ -38,17 +38,44 @@ import com.example.super_springboot.repository.MR_POLICY_Repository;
 import com.example.super_springboot.repository.PD_BEN_HEAD_Repository;
 import com.example.super_springboot.repository.PD_PLAN_BENEFIT_Repository;
 import com.example.super_springboot.repository.PD_PLAN_Repository;
+
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
+
+//import jakarta.persistence.criteria.Path;
+
 import com.example.super_springboot.repository.PD_PLAN_LIMIT_Repository;
 //import com.example.super_springboot.service.UserService;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
+//import java.net.http.HttpHeaders;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -60,6 +87,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+//import jakarta.persistence.criteria.Path;
+import java.nio.file.Path;
+
 
 @RestController
 public class MyController {
@@ -1043,7 +1073,9 @@ public class MyController {
 
     
     @PostMapping(path="/write_active_member_to_file")
-    public member_info write_active_member_to_file(@RequestParam Map<String, String> requestParams) throws IOException 
+    //public member_info write_active_member_to_file(@RequestParam Map<String, String> requestParams) throws IOException 
+    //public ResponseEntity<HttpServletResponse> write_active_member_to_file(@RequestParam Map<String, String> requestParams, HttpServletResponse response) throws IOException 
+    public HttpServletResponse write_active_member_to_file(@RequestParam Map<String, String> requestParams, HttpServletResponse response) throws IOException  
     {
         //BufferedReader reader = new BufferedReader(new FileReader("active_member_memb_oid.txt"));
         FileWriter fileWriter = new FileWriter("temp.csv", false);
@@ -1058,54 +1090,235 @@ public class MyController {
         String today_str = today.format(formatter);
         List<Long> thousand_members = (List<Long>) mr_member_repository.get_all_active_members(today_str);
         //while ((line = reader.readLine()) != null)
+
+         //ByteArrayOutputStream outByteStream = new ByteArrayOutputStream();
+         //workbook.write(outByteStream);
+         //byte [] outArray = outByteStream.toByteArray();
+         //response.setContentType("application/ms-excel");
+         //response.setContentLength(outArray.length);
+         //response.setHeader("Expires:", "0"); // eliminates browser caching
+         //response.setHeader("Content-Disposition", "attachment; filename=dump_all_active_members.xlsx");
+         //OutputStream outStream = response.getOutputStream();
+         //outStream.write(outArray);
+         //outStream.flush();
+
+         HSSFWorkbook workbook = new HSSFWorkbook();
+         HSSFSheet sheet = workbook.createSheet("All_Active_Member");
+         HSSFRow row = sheet.createRow(0);
+
+        //  row.createCell(0).setCellValue("ID employee");
+        //  row.createCell(1).setCellValue("First Name");
+        //  row.createCell(2).setCellValue("Last Name");
+        //  row.createCell(3).setCellValue("Started Date");
+
+        HSSFCellStyle cellStyle = workbook.createCellStyle();
+        //cellStyle.setFillBackgroundColor(HSSFColor.HSSFColorPredefined.GREY_25_PERCENT.getIndex());
+        //cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        //cellStyle.setFillForegroundColor(HSSFColor.HSSFColorPredefined.GREY_25_PERCENT.getIndex());
+        HSSFCell cell = row.createCell(0);
+        cellStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        Font font = workbook.createFont();
+        font.setFontHeightInPoints((short)12);
+        font.setFontName("Courier New");
+        //font.setItalic(true);
+        //font.setStrikeout(true);
+        font.setColor(IndexedColors.BLACK.getIndex());
+        cellStyle.setFont(font);
+        //cell.setCellStyle(cellStyle);
+
+         for (int i = 0; i < 27; i++) 
+         {
+          //sheet.autoSizeColumn(i);
+          sheet.setColumnWidth(i, 30 * 256);
+          cell = row.createCell(i);
+          cell.setCellStyle(cellStyle);
+          
+
+          if (i == 0)
+          {
+           //cell = row.createCell(0);
+           cell.setCellValue("MEMBER_NO");
+           //cell.setCellStyle(cellStyle);
+          }
+          if (i == 1)
+          {
+           cell.setCellValue("EMP_ID");
+          }
+          if (i == 2)
+          {
+           cell.setCellValue("NAME");
+          }
+          if (i == 3)
+          {
+           cell.setCellValue("DOB");
+          }
+          if (i == 4)
+          {
+           cell.setCellValue("PAY_ACCT_NO");
+          }
+          if (i == 5)
+          {
+           cell.setCellValue("MEMBER_TYPE");
+          }
+          if (i == 6)
+          {
+           cell.setCellValue("MARITAL_STATUS");
+          }
+          if (i == 7)
+          {
+           cell.setCellValue("SEX");
+          }
+          if (i == 8)
+          {
+           cell.setCellValue("ID_CARD");
+          }
+          if (i == 9)
+          {
+           cell.setCellValue("MEM_REF_NO");
+          }
+          if (i == 10)
+          {
+           cell.setCellValue("PPLAN");
+          }
+          if (i == 11)
+          {
+           cell.setCellValue("START_DATE");
+          }
+          if (i == 12)
+          {
+           cell.setCellValue("END_DATE");
+          }
+          if (i == 13)
+          {
+           cell.setCellValue("STATUS");
+          }
+          if (i == 14)
+          {
+           cell.setCellValue("POLICY_NUMBER");
+          }
+          if (i == 15)
+          {
+           cell.setCellValue("GROUP_ID");
+          }
+          if (i == 16)
+          {
+           cell.setCellValue("REF_POLICYNO");
+          }
+          if (i == 17)
+          {
+           cell.setCellValue("BRANCH");
+          }
+          if (i == 18)
+          {
+           cell.setCellValue("POLICY_HOLDER");
+          }
+          if (i == 19)
+          {
+           cell.setCellValue("COMPANY_NAME");
+          }
+          if (i == 20)
+          {
+           cell.setCellValue("POLICY_TYPE");
+          }
+          if (i == 21)
+          {
+           cell.setCellValue("TOC");
+          }
+          if (i == 22)
+          {
+           cell.setCellValue("SUB_COMPANY_NAME");
+          }
+          if (i == 23)
+          {
+           cell.setCellValue("CLASS_NO");
+          }
+          if (i == 24)
+          {
+           cell.setCellValue("TTYPE");
+          }
+          if (i == 25)
+          {
+           cell.setCellValue("CORPORATE_ID");
+          }
+          if (i == 26)
+          {
+           cell.setCellValue("PAYOR_CODE");
+          }
+        
+         
+         
+        
+         
+          
+           
+         }
+
+
         for (int i = 0 ; i < thousand_members.size() ; i++)
         {
+            row = sheet.createRow(i+1);
+
             List<MrMember> member_obj = (List<MrMember>) mr_member_repository.get_MEMBER_From_MEMB_OID(thousand_members.get(i));
             if (member_obj.size() >= 1) {
 
                 member_info_obj.setMember_no(member_obj.get(0).getMbrNo());
                 fileWriter.write(member_obj.get(0).getMbrNo() + ",");
+                row.createCell(0).setCellValue(member_obj.get(0).getMbrNo());
 
                 member_info_obj.setEmpid(member_obj.get(0).getMbrNo());
                 fileWriter.write(member_obj.get(0).getMbrNo() + ",");
+                row.createCell(1).setCellValue(member_obj.get(0).getMbrNo());
 
                 member_info_obj.setMemb_oid(member_obj.get(0).getMemb_oid());
                 fileWriter.write(member_obj.get(0).getMemb_oid().toString() + ",");
-
+            
                 member_info_obj.setName(member_obj.get(0).getMbr_first_name() + " " + member_obj.get(0).getMbr_last_name());
                 fileWriter.write(member_obj.get(0).getMbr_first_name() + " " + member_obj.get(0).getMbr_last_name() + ",");
+                row.createCell(2).setCellValue(member_obj.get(0).getMbr_first_name() + " " + member_obj.get(0).getMbr_last_name());
 
                 member_info_obj.setDate_of_birth(member_obj.get(0).getDOB());
                 fileWriter.write(member_obj.get(0).getDOB() + ",");
+                row.createCell(3).setCellValue(member_obj.get(0).getDOB());
 
                 member_info_obj.setAccount_no(member_obj.get(0).getCL_PAY_ACCT_NO());
                 fileWriter.write(member_obj.get(0).getCL_PAY_ACCT_NO() + ",");
+                row.createCell(4).setCellValue(member_obj.get(0).getCL_PAY_ACCT_NO());
 
                 member_info_obj.setMember_type(member_obj.get(0).getSCMA_OID_MBR_TYPE());
                 fileWriter.write(member_obj.get(0).getSCMA_OID_MBR_TYPE() + ",");
+                row.createCell(5).setCellValue(member_obj.get(0).getSCMA_OID_MBR_TYPE());
 
                 member_info_obj.setMarital_status(member_obj.get(0).getSCMA_OID_CIVIL_STATUS());
                 fileWriter.write(member_obj.get(0).getSCMA_OID_CIVIL_STATUS() + ",");
+                row.createCell(6).setCellValue(member_obj.get(0).getSCMA_OID_CIVIL_STATUS());
 
                 member_info_obj.setGender(member_obj.get(0).getSCMA_OID_SEX());
                 fileWriter.write(member_obj.get(0).getSCMA_OID_SEX() + ",");
+                row.createCell(7).setCellValue(member_obj.get(0).getSCMA_OID_SEX());
 
                 member_info_obj.setId_card(member_obj.get(0).getID_CARD_NO());
                 fileWriter.write(member_obj.get(0).getID_CARD_NO() + ",");
+                row.createCell(8).setCellValue(member_obj.get(0).getID_CARD_NO());
 
                 member_info_obj.setMember_refno(member_obj.get(0).getCUSM_REF_NO());
                 fileWriter.write(member_obj.get(0).getCUSM_REF_NO() + ",");
+                row.createCell(9).setCellValue(member_obj.get(0).getCUSM_REF_NO());
 
                 member_info_obj.setPplan(member_obj.get(0).getPLAN_NO());
                 fileWriter.write(member_obj.get(0).getPLAN_NO() + ",");
+                row.createCell(10).setCellValue(member_obj.get(0).getPLAN_NO());
 
                 List<MrMemberPlan> member_plan_obj = (List<MrMemberPlan>) mr_member_plan_repository.get_POPL_OID(member_obj.get(0).getMemb_oid());
                 if (member_plan_obj.size() >= 1) {
                     member_info_obj.setStart_date(member_plan_obj.get(0).getEff_date());
                     fileWriter.write(member_plan_obj.get(0).getEff_date() + ",");
+                    row.createCell(11).setCellValue(member_plan_obj.get(0).getEff_date());
 
                     member_info_obj.setEnd_date(member_plan_obj.get(0).getExp_date());
                     fileWriter.write(member_plan_obj.get(0).getExp_date() + ",");
+                    row.createCell(12).setCellValue(member_plan_obj.get(0).getExp_date());
+
 
                     today = LocalDate.now();
                     formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"); // Adjust format as needed
@@ -1122,6 +1335,7 @@ public class MyController {
 
                     member_info_obj.setStatus("Active");
                     fileWriter.write("Active" + ",");
+                    row.createCell(13).setCellValue("ACTIVE");
 
                     member_info_obj.setPOPL_OID(member_plan_obj.get(0).getPoplOid());
                     fileWriter.write(member_plan_obj.get(0).getPoplOid() + ",");
@@ -1136,56 +1350,181 @@ public class MyController {
                         if (policy_obj.size() >= 1) {
                             member_info_obj.setPolicy_no(policy_obj.get(0).getPocyNo());
                             fileWriter.write(policy_obj.get(0).getPocyNo() + ",");
+                            row.createCell(14).setCellValue(policy_obj.get(0).getPocyNo());
 
                             member_info_obj.setGroup_id(policy_obj.get(0).getPocyNo());
                             fileWriter.write(policy_obj.get(0).getPocyNo() + ",");
+                            row.createCell(15).setCellValue(policy_obj.get(0).getPocyNo());
 
                             member_info_obj.setRef_policyno(policy_obj.get(0).getLMG_NO());
                             fileWriter.write(policy_obj.get(0).getLMG_NO() + ",");
+                            row.createCell(16).setCellValue(policy_obj.get(0).getLMG_NO());
 
                             List<MrPolicyholder> policy_holder_obj = (List<MrPolicyholder>) my_policy_holder_repository.get_poho_name(policy_obj.get(0).getPohoOid());
                             if (policy_holder_obj.size() >= 1) {
                                 member_info_obj.setBranch(policy_holder_obj.get(0).getCustomer_branch());
                                 fileWriter.write(policy_holder_obj.get(0).getCustomer_branch() + ",");
+                                row.createCell(17).setCellValue(policy_holder_obj.get(0).getCustomer_branch());
 
                                 member_info_obj.setPolicy_holder(policy_holder_obj.get(0).getPoho_name_1() + " " + policy_holder_obj.get(0).getPoho_name_2());
                                 fileWriter.write(policy_holder_obj.get(0).getPoho_name_1() + " " + policy_holder_obj.get(0).getPoho_name_2() + ",");
+                                row.createCell(18).setCellValue(policy_holder_obj.get(0).getPoho_name_1() + " " + policy_holder_obj.get(0).getPoho_name_2());
 
                                 member_info_obj.setCompany_name(policy_holder_obj.get(0).getPoho_name_1() + " " + policy_holder_obj.get(0).getPoho_name_2());
                                 fileWriter.write(policy_holder_obj.get(0).getPoho_name_1() + " " + policy_holder_obj.get(0).getPoho_name_2());
+                                row.createCell(19).setCellValue(policy_holder_obj.get(0).getPoho_name_1() + " " + policy_holder_obj.get(0).getPoho_name_2());
 
                                 member_info_obj.setPolicy_type(policy_holder_obj.get(0).getSCMA_OID_POHO_TYPE());
                                 fileWriter.write(policy_holder_obj.get(0).getSCMA_OID_POHO_TYPE() + ",");
+                                row.createCell(20).setCellValue(policy_holder_obj.get(0).getSCMA_OID_POHO_TYPE());
 
                                 List<PdPlan> pdplan_obj = (List<PdPlan>) pd_plan_repository.get_PLAN_ID(policy_plan_obj.get(0).getPlanOid());
                                 if (pdplan_obj.size() >= 1) {
                                     member_info_obj.setToc(pdplan_obj.get(0).getPlanId());
                                     fileWriter.write(pdplan_obj.get(0).getPlanId() + ",");
+                                    row.createCell(21).setCellValue(pdplan_obj.get(0).getPlanId());
+                                    row.createCell(22).setCellValue("null");
+                                    row.createCell(23).setCellValue("null");
+                                    row.createCell(24).setCellValue("null");
+                                    row.createCell(25).setCellValue("null");
+                                    row.createCell(26).setCellValue("null");
+
 
                                     //member_info_obj.setPplan(pdplan_obj.get(0).getPlan_no().trim());
                                 } else {
-                                    return member_info_obj;
+                                    //return member_info_obj;
+                                    //return ResponseEntity.notFound().build();
+                                    return response;
                                 }
                             } else {
-                                return member_info_obj;
+                                //return member_info_obj;
+                                //return ResponseEntity.notFound().build();
+                                return response;
                             }
                         } else {
-                            return member_info_obj;
+                            //return member_info_obj;
+                            //return ResponseEntity.notFound().build();
+                            return response;
                         }
                     } else {
-                        return member_info_obj;
+                        //return member_info_obj;
+                        //return ResponseEntity.notFound().build();
+                        return response;
                     }
                 } else {
-                    return member_info_obj;
+                    //return member_info_obj;
+                    //return ResponseEntity.notFound().build();
+                    return response;
                 }
             } else {
-                return member_info_obj;
+                //return member_info_obj;
+                //return ResponseEntity.notFound().build();
+                return response;
             }
             fileWriter.write("\n");
         }
         fileWriter.close();
         //reader.close();
-        return member_info_obj;
+
+    //    HSSFWorkbook workbook = new HSSFWorkbook();
+    //    HSSFSheet sheet = workbook.createSheet("Employees_Info");
+    //    HSSFRow row = sheet.createRow(0);
+
+    //    row.createCell(0).setCellValue("ID employee");
+    //    row.createCell(1).setCellValue("First Name");
+    //    row.createCell(2).setCellValue("Last Name");
+    //    row.createCell(3).setCellValue("Started Date");
+
+    //    for (int i = 0; i < 4; i++) {
+    //     sheet.autoSizeColumn(i);
+    //    }
+
+    //   ServletOutputStream ops = response.getOutputStream();
+    //   workbook.write(ops);
+    //   workbook.close();
+    //   ops.close();
+
+    ByteArrayOutputStream outByteStream = new ByteArrayOutputStream();
+    workbook.write(outByteStream);
+    byte [] outArray = outByteStream.toByteArray();
+    response.setContentType("application/ms-excel");
+    response.setContentLength(outArray.length);
+    response.setHeader("Expires:", "0"); // eliminates browser caching
+    response.setHeader("Content-Disposition", "attachment; filename=all_active_members.xls");
+    OutputStream outStream = response.getOutputStream();
+    outStream.write(outArray);
+    outStream.flush();
+
+
+    //ByteArrayOutputStream outByteStream = new ByteArrayOutputStream();
+    ////workbook.write(outByteStream);
+    //byte [] outArray = outByteStream.toByteArray();
+    //response.setContentType("application/ms-excel");
+    //response.setContentLength(outArray.length);
+    //response.setHeader("Expires:", "0"); // eliminates browser caching
+    //response.setHeader("Content-Disposition", "attachment; filename=dump_all_active_members.xlsx");
+    //OutputStream outStream = response.getOutputStream();
+    //outStream.write(outArray);
+    //outStream.flush();
+
+    // return ResponseEntity.ok()
+    //        .contentType(MediaType.parseMediaType("application/ms-excel"))
+    //        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + "testxls.xls" + "\"")
+    //        .body(response);
+
+    // return ResponseEntity.ok()
+    //     //    .contentType(MediaType.parseMediaType("application/ms-excel"))
+    //     //    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + "testxls.xls" + "\"")
+    //        .body(response);
+
+    //return ResponseEntity.notFound().build();
+
+    return response;
+
+   
+
+
+
+
+
+
+
+
+        //  try {
+                // File projectRootFile = new FileSystemResource("").getFile();
+                // String projectRootPath = projectRootFile.getAbsolutePath(); 
+                // Path filePath = Paths.get(projectRootPath).resolve("temp.csv").normalize();
+                // System.out.println(filePath);
+                // UrlResource resource = new UrlResource(filePath.toUri());
+                // if (resource.exists() && resource.isReadable()) 
+                // {
+                //     String contentType = "application/octet-stream"; 
+                //     return ResponseEntity.ok()
+                //             .contentType(MediaType.parseMediaType(contentType))
+                //             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                //             .body(resource);
+                // } else 
+                // {
+                //     return ResponseEntity.notFound().build();
+                // }
+
+
+
+            // } catch (Exception e) {
+            //     return ResponseEntity.internalServerError().build();
+            // }
+
+
+
+
+
+
+
+
+
+
+
+        //return member_info_obj;
     }
 
 

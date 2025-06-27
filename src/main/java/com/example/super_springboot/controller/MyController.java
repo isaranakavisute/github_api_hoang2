@@ -57,6 +57,11 @@ import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -1102,20 +1107,32 @@ public class MyController {
          //outStream.write(outArray);
          //outStream.flush();
 
-         HSSFWorkbook workbook = new HSSFWorkbook();
-         HSSFSheet sheet = workbook.createSheet("All_Active_Member");
-         HSSFRow row = sheet.createRow(0);
+         
+         //HSSFWorkbook workbook = new HSSFWorkbook();
+         XSSFWorkbook workbook = new XSSFWorkbook();
+        
+         //HSSFSheet sheet = workbook.createSheet("All_Active_Member");
+         XSSFSheet sheet = workbook.createSheet("All_Active_Member");
+
+         //HSSFRow row = sheet.createRow(0);
+         XSSFRow row = sheet.createRow(0);
 
         //  row.createCell(0).setCellValue("ID employee");
         //  row.createCell(1).setCellValue("First Name");
         //  row.createCell(2).setCellValue("Last Name");
         //  row.createCell(3).setCellValue("Started Date");
 
-        HSSFCellStyle cellStyle = workbook.createCellStyle();
+        //HSSFCellStyle cellStyle = workbook.createCellStyle();
+        XSSFCellStyle cellStyle = workbook.createCellStyle();
+
+
         //cellStyle.setFillBackgroundColor(HSSFColor.HSSFColorPredefined.GREY_25_PERCENT.getIndex());
         //cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         //cellStyle.setFillForegroundColor(HSSFColor.HSSFColorPredefined.GREY_25_PERCENT.getIndex());
-        HSSFCell cell = row.createCell(0);
+        
+        //HSSFCell cell = row.createCell(0);
+        XSSFCell cell = row.createCell(0);
+
         cellStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
         cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         Font font = workbook.createFont();
@@ -1244,17 +1261,8 @@ public class MyController {
           if (i == 26)
           {
            cell.setCellValue("PAYOR_CODE");
-          }
-        
-         
-         
-        
-         
-          
-           
+          }  
          }
-
-
         for (int i = 0 ; i < thousand_members.size() ; i++)
         {
             row = sheet.createRow(i+1);
@@ -1447,10 +1455,13 @@ public class MyController {
     ByteArrayOutputStream outByteStream = new ByteArrayOutputStream();
     workbook.write(outByteStream);
     byte [] outArray = outByteStream.toByteArray();
-    response.setContentType("application/ms-excel");
+    //response.setContentType("application/ms-excel");
+    //response.setContentType("application/vnd.ms-excel");
+    response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     response.setContentLength(outArray.length);
     response.setHeader("Expires:", "0"); // eliminates browser caching
-    response.setHeader("Content-Disposition", "attachment; filename=all_active_members.xls");
+    //response.setHeader("Content-Disposition", "attachment; filename=all_active_members.xls");
+    response.setHeader("Content-Disposition", "attachment; filename=all_active_members.xlsx");
     OutputStream outStream = response.getOutputStream();
     outStream.write(outArray);
     outStream.flush();

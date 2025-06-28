@@ -16,5 +16,18 @@ public interface MR_POLICY_PLAN_Repository extends JpaRepository<MrPolicyPlan, I
         WHERE POPL_OID = :poplOid
         """, nativeQuery = true)
     Collection<MrPolicyPlan> getPolicyPlanByPoplOid(String poplOid);
+
+    @Query(value = """
+        SELECT popl_oid 
+        FROM (
+            SELECT popl_oid 
+            FROM mr_policy_plan a
+            LEFT JOIN mr_policy b ON a.pocy_oid = b.pocy_oid
+            WHERE b.pocy_no = :pocyNo
+            ORDER BY popl_oid DESC
+        )
+        WHERE ROWNUM = 1
+        """, nativeQuery = true)
+    Long getLatestPoplByPocyNo(String pocyNo);
 }
 

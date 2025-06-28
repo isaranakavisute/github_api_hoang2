@@ -9,6 +9,7 @@ import com.example.super_springboot.repository.CL_CLAIM_Repository;
 import com.example.super_springboot.repository.CL_LINE_Repository;
 import com.example.super_springboot.repository.MR_MEMBER_Repository;
 import com.example.super_springboot.repository.MR_POLICY_HOLDER_Repository;
+import com.example.super_springboot.repository.MR_POLICY_PLAN_Repository;
 import com.example.super_springboot.repository.PV_PROVIDER_Respository;
 
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class ClaimService {
     private final MR_POLICY_HOLDER_Repository pohoRepository;
     private final PV_PROVIDER_Respository providerRepository;
     private final MR_MEMBER_Repository memberRepository;
+    private final MR_POLICY_PLAN_Repository poplRepository;
 
     public ClClaim proceedSavedClaim(ClClaim claim, ClLine clli, ClaimRequest request) throws Exception {
         // Save ClClaim
@@ -51,6 +53,10 @@ public class ClaimService {
             String countryPay = clli.getScmaOidCountryPay() != null ? clli.getScmaOidCountryPay().toString() : poho.getScmaOidCountryBillAddr();
             String paymentMethod = clli.getScmaOidClPaymentMethod() != null ? clli.getScmaOidClPaymentMethod().toString() : poho.getScmaOidClPayMethod();
             String payZipCde = clli.getPayZipCde() != null ? clli.getPayZipCde().toString() : poho.getBillZipCde();
+            Long poplOid = clli.getPoplOid() != null ? clli.getPoplOid() : poplRepository.getLatestPoplByPocyNo(request.getPolicy_no());
+            Long benPoplOid = clli.getBenPoplOid() != null ? clli.getBenPoplOid() : poplOid;
+            Long diagOid = clli.getDiagOid() != null ? clli.getDiagOid() : 207867;
+            Long behdOid = clli.getBehdOid() != null ? clli.getBehdOid() : 20015;
 
             clli.setClamOid(savedClaim.getClamOid());
             clli.setLineNo(generateNewLineNo(claim.getClamOid()));
@@ -59,12 +65,10 @@ public class ClaimService {
             clli.setProvOid(provOid);
             clli.setProvName(request.getProvider());
             clli.setMembOid(membOid);
-
-            //.benPoplOid(lineRequest.getPopl_oid())
-            //.poplOid(lineRequest.getPopl_oid())
-            //.behdOid(lineRequest.getBehd_oid())
-            //.diagOid(lineRequest.getDiag_oid())
-
+            clli.setPoplOid(poplOid);
+            clli.setBenPoplOid(benPoplOid);
+            clli.setDiagOid(diagOid);
+            clli.setBehdOid(behdOid);
             clli.setPayAddr1(payAddr1);
             clli.setPayAddr2(payAddr2);
             clli.setPayAddr3(payAddr3);

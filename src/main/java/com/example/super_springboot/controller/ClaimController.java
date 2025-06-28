@@ -7,6 +7,7 @@ import com.example.super_springboot.entity.ClClaim;
 import com.example.super_springboot.entity.ClLine;
 import com.example.super_springboot.mapper.ClClaimMapper;
 import com.example.super_springboot.mapper.ClLineMapper;
+import com.example.super_springboot.service.ApiAuditLogService;
 import com.example.super_springboot.service.ClaimService;
 import com.example.super_springboot.service.ClaimValidationService;
 
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +30,7 @@ public class ClaimController {
 
     private final ClaimService claimService;
     private final ClaimValidationService claimValidationService;
+    private final ApiAuditLogService apiAuditLogService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<?>> createClaim(@Valid @RequestBody ClaimRequest request) {
@@ -53,41 +54,53 @@ public class ClaimController {
         claimValidationService.validate(claim, clLine, request, errors);
 
         if (!errors.isEmpty()) {
-            return ResponseEntity.badRequest().body(
-                    new ApiResponse<>(false, errors, "Mapping errors", "E400"));
+            ApiResponse<List<ClaimRequestFieldErrorDetail>> response = ApiResponse.<List<ClaimRequestFieldErrorDetail>>builder()
+                .success(false)
+                .data(errors)
+                .message("Mapping errors")
+                .code("E400")
+                .build();
+
+            apiAuditLogService.logApiCall("POST", "/api/claims", request, response, "FAILURE");
+            return ResponseEntity.badRequest().body(response);     
         }
 
         // ------------- Create Claim ----------------
         try {
             ClClaim cl = claimService.proceedSavedClaim(claim, clLine, request);
             if (cl == null) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(ApiResponse.builder()
-                                .success(false)
-                                .data(List.of())
-                                .message("Claim could not be created")
-                                .code("E403")
-                                .build());
+                ApiResponse<?> response = ApiResponse.builder()
+                    .success(false)
+                    .data(null)
+                    .message("Claim could not be created")
+                    .code("E403")
+                    .build();
+
+                apiAuditLogService.logApiCall("POST", "/api/claims", request, response, "FAILURE");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);           
             }
 
-            Map<String, Object> clMap = new HashMap<>();
-            clMap.put("claim_no", cl.getClNo());
-            List<Map<String, Object>> clResponse = List.of(clMap);
-            
-            return ResponseEntity.ok(ApiResponse.builder()
-                    .success(true)
-                    .data(List.of(clResponse))
-                    .message("Claim created successfully")
-                    .code(200)
-                    .build());
+            Map<String, Object> clMap = Map.of("claim_no", cl.getClNo());
+            ApiResponse<Map<String, Object>> response = ApiResponse.<Map<String, Object>>builder()
+                .success(true)
+                .data(clMap)
+                .message("Claim created successfully")
+                .code(200)
+                .build();
+
+            apiAuditLogService.logApiCall("POST", "/api/claims", request, response, "SUCCESS");
+            return ResponseEntity.ok(response);
 
         } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(ApiResponse.builder()
-                    .success(false)
-                    .data(List.of())
-                    .message(ex.getMessage())
-                    .code("E403")
-                    .build());
+            ApiResponse<Object> response = ApiResponse.builder()
+                .success(false)
+                .data(null)
+                .message(ex.getMessage())
+                .code("E403")
+                .build();
+
+            apiAuditLogService.logApiCall("POST", "/api/claims", request, response, "FAILURE");
+            return ResponseEntity.badRequest().body(response);
         }
     }
 }

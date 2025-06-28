@@ -16,32 +16,47 @@ public class GlobalExceptionHandler {
     // JSON format error cannot be parsed
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<String>> handleParseError(HttpMessageNotReadableException ex) {
-        return ResponseEntity.badRequest().body(
-            new ApiResponse<>(false, List.of("Invalid input"), "JSON parse error", "E400")
-        );
+        ApiResponse<String> response = ApiResponse.<String>builder()
+                .success(false)
+                .data("Invalid input")
+                .message("JSON parse error")
+                .code("E400")
+                .build();
+
+        return ResponseEntity.badRequest().body(response);
     }
 
     // Validation error (@Valid) not passed
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<ClaimRequestFieldErrorDetail>> handleValidationErrors(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResponse<List<ClaimRequestFieldErrorDetail>>> handleValidationErrors(MethodArgumentNotValidException ex) {
         List<ClaimRequestFieldErrorDetail> errors = ex.getBindingResult().getFieldErrors().stream()
-            .map(e -> new ClaimRequestFieldErrorDetail(
-                e.getField(),
-                e.getDefaultMessage(),
-                e.getCode() != null ? e.getCode() : "E401"
-            ))
-            .collect(Collectors.toList());
+                .map(e -> new ClaimRequestFieldErrorDetail(
+                        e.getField(),
+                        e.getDefaultMessage(),
+                        e.getCode() != null ? e.getCode() : "E401"
+                ))
+                .collect(Collectors.toList());
 
-        return ResponseEntity.badRequest().body(
-            new ApiResponse<>(false, errors, "Validation failed", "E401")
-        );
+        ApiResponse<List<ClaimRequestFieldErrorDetail>> response = ApiResponse.<List<ClaimRequestFieldErrorDetail>>builder()
+                .success(false)
+                .data(errors)
+                .message("Validation failed")
+                .code("E401")
+                .build();
+
+        return ResponseEntity.badRequest().body(response);
     }
 
     // To make sure the app never crashes, add a global catch:
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<String>> handleUnknownError(Exception ex) {
-        return ResponseEntity.status(500).body(
-            new ApiResponse<>(false, List.of("Server error"), "Unexpected error", "E500")
-        );
+        ApiResponse<String> response = ApiResponse.<String>builder()
+                .success(false)
+                .data("Server error")
+                .message("Unexpected error")
+                .code("E500")
+                .build();
+
+        return ResponseEntity.status(500).body(response);
     }
 }

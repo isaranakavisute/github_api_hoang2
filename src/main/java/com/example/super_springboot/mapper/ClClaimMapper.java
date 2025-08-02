@@ -4,49 +4,28 @@ import com.example.super_springboot.dto.request.ClaimRequest;
 import com.example.super_springboot.dto.response.ClaimRequestFieldErrorDetail;
 import com.example.super_springboot.entity.ClClaim;
 
+import lombok.RequiredArgsConstructor;
+
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
+import org.springframework.stereotype.Component;
+
+@Component
+@RequiredArgsConstructor
 public class ClClaimMapper {
+    private static final String DEFAULT_SCMA_OID_CL_STATUS = "CL_STATUS_NC";
+    private static final String DEFAULT_SCMA_OID_FORCE_PAY = "YN_N";
+    private static final String DEFAULT_USER = "API";
 
-    public static ClClaim toEntity(ClaimRequest req, List<ClaimRequestFieldErrorDetail> errors) {
-        Set<String> VALID_CL_STATUSES = Set.of(
-                "CL_STATUS_NC", "CL_STATUS_RC", "CL_STATUS_RA",
-                "CL_STATUS_PV", "CL_STATUS_PC", "CL_STATUS_FC");
-
+    public ClClaim toEntity(ClaimRequest req, List<ClaimRequestFieldErrorDetail> errors) {
         ClClaim cl = new ClClaim();
-
-        cl.setScmaOidClStatus(req.getMember_no());
-
-        // ----------- scma_oid_cl_status-----------
-        String rawClStatus = req.getScma_oid_cl_status();
-        String clStatus = (rawClStatus != null) ? rawClStatus.trim().toUpperCase() : "CL_STATUS_NC";
-        if (VALID_CL_STATUSES.contains(clStatus)) {
-            cl.setScmaOidClStatus(clStatus);
-        } else {
-            errors.add(new ClaimRequestFieldErrorDetail("scma_oid_cl_status", "Invalid value", "E400"));
-        }
-
-        // ----------- scmaOidYnForcePay -----------
-        if (req.getScma_oid_yn_force_pay() != null) {
-            String forcePay = req.getScma_oid_yn_force_pay().trim().toUpperCase();
-            if ("YN_Y".equals(forcePay) || "YN_N".equals(forcePay)) {
-                cl.setScmaOidYnForcePay(forcePay);
-            } else {
-                errors.add(new ClaimRequestFieldErrorDetail("scma_oid_yn_force_pay", "Invalid value", "E400"));
-            }
-        }
-
-        cl.setRemark(req.getRemarks());
-
-        String rawCrtUser = req.getCrt_user();
-        String crtUser = (rawCrtUser != null) ? rawCrtUser.trim() : "API";
-        cl.setCrtUser(crtUser);
-        cl.setUpdUser(crtUser);
+        cl.setScmaOidClStatus(DEFAULT_SCMA_OID_CL_STATUS);
+        cl.setScmaOidYnForcePay(DEFAULT_SCMA_OID_FORCE_PAY);
+        cl.setCrtUser(DEFAULT_USER);
+        cl.setUpdUser(DEFAULT_USER);
         cl.setCrtDate(LocalDateTime.now());
         cl.setUpdDate(LocalDateTime.now());
-
         return cl;
     }
 }

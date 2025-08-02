@@ -29,5 +29,14 @@ public interface MR_POLICY_PLAN_Repository extends JpaRepository<MrPolicyPlan, I
         WHERE ROWNUM = 1
         """, nativeQuery = true)
     Long getLatestPoplByPocyNo(String pocyNo);
+
+    @Query(value = """
+        SELECT pt.scma_oid_product 
+        FROM MR_POLICY_PLAN popl
+        LEFT JOIN PD_PLAN pl ON popl.plan_oid = pl.plan_oid
+        LEFT JOIN RT_PRODUCT_TYPE pt on pl.prty_oid= pt.prty_oid
+        WHERE popl.popl_oid = :poplOid
+        """, nativeQuery = true)
+    String getProductTypeByPoplOid(Long poplOid);
 }
 

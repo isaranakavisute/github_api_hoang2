@@ -1,8 +1,15 @@
 package com.example.super_springboot.mapper;
 
+import com.example.super_springboot.dto.MrPolicyholderProjection;
 import com.example.super_springboot.dto.request.ClaimRequest;
 import com.example.super_springboot.dto.response.ClaimRequestFieldErrorDetail;
 import com.example.super_springboot.entity.ClLine;
+import com.example.super_springboot.repository.MR_MEMBER_Repository;
+import com.example.super_springboot.repository.MR_POLICY_HOLDER_Repository;
+import com.example.super_springboot.repository.MR_POLICY_PLAN_Repository;
+import com.example.super_springboot.repository.PV_PROVIDER_Respository;
+
+import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -10,28 +17,42 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Set;
 
+import org.springframework.stereotype.Component;
+
+@Component
+@RequiredArgsConstructor
 public class ClLineMapper {
+    private final MR_POLICY_HOLDER_Repository pohoRepository;
+    private final MR_MEMBER_Repository memberRepository;
+    private final MR_POLICY_PLAN_Repository poplRepository;
+    private final PV_PROVIDER_Respository providerRepository;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final Set<String> YN_LS = Set.of("YN_N", "YN_Y");
-    private static final Set<String> SCMA_OID_PRODUCTS = Set.of(
-            "PRODUCT_TV_BV", "PRODUCT_CV", "PRODUCT_LF",
-            "PRODUCT_LV", "PRODUCT_MD", "PRODUCT_PA");
-    private static final Set<String> CL_LINE_STATUS_LS = Set.of(
-            "CL_LINE_STATUS_PV", "CL_LINE_STATUS_PD", "CL_LINE_STATUS_SU", "CL_LINE_STATUS_AC",
-            "CL_LINE_STATUS_RJ", "CL_LINE_STATUS_RV", "CL_LINE_STATUS_IC", "CL_LINE_STATUS_UE");
+    private static final String DEFAULT_SCMA_OID_CL_PAY_TO = "CL_PAY_TO_D";
+    private static final String DEFAULT_COUNTRY_TREATMENT = "COUNTRY_066";
+    private static final String DEFAULT_CL_TYPE = "CL_TYPE_M";
+    private static final String DEFAULT_STAGE_IDX = "PV";
+    private static final String DEFAULT_LINE_STATUS = "CL_LINE_STATUS_IC";
+    private static final String DEFAULT_YN = "YN_N";
+    private static final String DEFAULT_CCY = "CCY_THB";
+    private static final String DEFAULT_PAY_PRINT_LANG = "N";
+    private static final String DEFAULT_HOSPITAL_NUMBER = "-";
+    private static final String DEFAULT_HOSP_SUB_NO = "E-CLAIM";
+    private static final String DEFAULT_CL_PAY_VOUCHER = "LB1";
+    private static final String DEFAULT_DIAG_OID = "207867";
+    private static final String DEFAULT_BEHD_OID = "20015";
+    private static final BigDecimal DEFAULT_FX_RATE = new BigDecimal(1);
+    private static final String DEFAULT_PEND_VAL = "Y";
+    private static final String DEFAULT_USER = "API";
 
-    public static ClLine toEntity(ClaimRequest req, List<ClaimRequestFieldErrorDetail> errors) {
+    public ClLine toEntity(ClaimRequest req, List<ClaimRequestFieldErrorDetail> errors) {
         ClLine clli = new ClLine();
 
         clli.setIncurDateFrom(parseDate(req.getStart(), "start", errors));
         clli.setIncurDateTo(parseDate(req.getFinish(), "finish", errors));
-        clli.setRcvDate(parseDate(req.getRcv_date(), "rcv_date", errors));
-        clli.setScmaOidClPayTo(req.getScma_oid_cl_pay_to());
-
-        // ------------ total_billed ----------------------
+        clli.setRcvDate(LocalDate.now());
+        clli.setScmaOidClPayTo(DEFAULT_SCMA_OID_CL_PAY_TO);
         BigDecimal totalBilled = parseBigDecimal(req.getTotal_billed(), "total_billed", errors);
         if (totalBilled != null) {
             clli.setPresAmt(totalBilled);
@@ -39,167 +60,62 @@ public class ClLineMapper {
             clli.setOrgAdjPresAmt(totalBilled);
             clli.setAdjPresAmt(totalBilled);
         }
+        Long poplOid = poplRepository.getLatestPoplByPocyNo(req.getPolicy_no());
 
-        // ----------- ben_popl_oid -----------
-        clli.setBenPoplOid(parseLong(req.getBen_popl_oid(), "ben_popl_oid", errors));
-        clli.setPoplOid(parseLong(req.getPopl_oid(), "popl_oid", errors));
-
-        // ---------------- scma_oid_product ----------------
-        String rawScmaOidProduct = req.getScma_oid_product();
-        String scmaOidProduct = (rawScmaOidProduct != null) ? rawScmaOidProduct.trim().toUpperCase() : "PRODUCT_MD";
-        if (SCMA_OID_PRODUCTS.contains(scmaOidProduct)) {
-            clli.setScmaOidProduct(scmaOidProduct);
-        } else {
-            errors.add(new ClaimRequestFieldErrorDetail("scma_oid_product", "Invalid value", "E400"));
-        }
-
-        // --------------------------------
+        clli.setBenPoplOid(poplOid);
+        clli.setPoplOid(poplOid);
+        String scmaOidProduct = poplRepository.getProductTypeByPoplOid(poplOid);
+        clli.setScmaOidProduct(scmaOidProduct);
         clli.setProvName(req.getProvider());
-
-        // --------------------------------
-        String rawCountryTreatment = req.getScma_oid_country_treatment();
-        String countryTreatment = (rawCountryTreatment != null) ? rawCountryTreatment.trim().toUpperCase()
-                : "COUNTRY_066";
-        clli.setScmaOidCountryTreatment(countryTreatment);
-
-        // -------------- scma_oid_cl_type ------------------
-        String rawClType = req.getScma_oid_cl_type();
-        String clType = (rawClType != null) ? rawClType.trim().toUpperCase() : "CL_TYPE_M";
-        if ("CL_TYPE_M".equals(clType) || "CL_TYPE_P".equals(clType)) {
-            clli.setScmaOidClType(req.getScma_oid_cl_type());
-        } else {
-            errors.add(new ClaimRequestFieldErrorDetail("scma_oid_cl_type", "Invalid value", "E400"));
-        }
-
-        // --------------------------------
-        String rawStageIdx = req.getStage_idx();
-        String stageIdx = (rawStageIdx != null) ? rawStageIdx.trim().toUpperCase() : "PV";
-        clli.setStageIdx(stageIdx);
-
-        // ---------------- scma_oid_cl_line_status ----------------
-        String rawClLineStatus = req.getScma_oid_cl_line_status();
-        String clLineStatus = (rawClLineStatus != null) ? rawClLineStatus.trim().toUpperCase() : "CL_LINE_STATUS_IC";
-        if (CL_LINE_STATUS_LS.contains(clLineStatus)) {
-            clli.setScmaOidClLineStatus(req.getScma_oid_cl_line_status());
-        } else {
-            errors.add(new ClaimRequestFieldErrorDetail("scma_oid_cl_line_status", "Invalid value", "E400"));
-        }
-
-        clli.setDiagOid(parseLong(req.getDiag_oid(), "diag_oid", errors));
-        clli.setBehdOid(parseLong(req.getBehd_oid(), "behd_oid", errors));
-
-        // ---------------- scma_oid_yn_er ----------------
-        clli.setScmaOidYnEr(checkYnFormat(req.getScma_oid_yn_er(), "scma_oid_yn_er", errors));
-        // ---------------- scma_oid_yn_treat_plan ----------------
-        clli.setScmaOidYnTreatPlan(checkYnFormat(req.getScma_oid_yn_treat_plan(), "scma_oid_yn_wp", errors));
-        // ---------------- scma_oid_yn_wp ----------------
-        clli.setScmaOidYnWp(checkYnFormat(req.getScma_oid_yn_wp(), "scma_oid_yn_wp", errors));
-
-        // ---------------- scma_oid_yn_wp ----------------
-        String rawOidCcyPres = req.getScma_oid_ccy_pres();
-        String oidCcyPres = (rawOidCcyPres != null) ? rawOidCcyPres.trim().toUpperCase() : "CCY_THB";
-        clli.setScmaOidCcyPres(oidCcyPres);
-
-        // -------------------------------
+        Long provOid = providerRepository.getProviderOidByName(req.getProvider());
+        clli.setProvOid(provOid);
+        clli.setScmaOidCountryTreatment(DEFAULT_COUNTRY_TREATMENT);
+        clli.setScmaOidClType(DEFAULT_CL_TYPE);
+        clli.setStageIdx(DEFAULT_STAGE_IDX);
+        clli.setScmaOidClLineStatus(DEFAULT_LINE_STATUS);
+        clli.setDiagOid(Long.parseLong(DEFAULT_DIAG_OID));
+        clli.setBehdOid(Long.parseLong(DEFAULT_BEHD_OID));
+        clli.setScmaOidYnEr(DEFAULT_YN);
+        clli.setScmaOidYnTreatPlan(DEFAULT_YN);
+        clli.setScmaOidYnWp(DEFAULT_YN);
+        clli.setScmaOidCcyPres(DEFAULT_CCY);
         clli.setPayee(req.getMember_name());
-        clli.setFxRate(parseBigDecimal(req.getFx_rate(), "fx_rate", errors));
-
-        // ---------------- scma_oid_yn_wp ----------------
-        String rawOidCcyPay = req.getScma_oid_ccy_pay();
-        String oidCcyPay = (rawOidCcyPay != null) ? rawOidCcyPay.trim().toUpperCase() : "CCY_THB";
-        clli.setScmaOidCcyPay(oidCcyPay);
-
-        // -------------------------------
-        clli.setPayFxRate(parseBigDecimal(req.getPay_fx_rate(), "pay_fx_rate", errors));
+        clli.setFxRate(DEFAULT_FX_RATE);
+        clli.setScmaOidCcyPay(DEFAULT_CCY);
+        clli.setPayFxRate(DEFAULT_FX_RATE);
         clli.setRemarks(req.getRemarks());
-        clli.setPendVal("Y");
+        clli.setPendVal(DEFAULT_PEND_VAL);
+        clli.setPayPrintInOtherLangInd(DEFAULT_PAY_PRINT_LANG);
+        clli.setHospitalNumber(DEFAULT_HOSPITAL_NUMBER);
+        clli.setHospSubNo(DEFAULT_HOSP_SUB_NO);
+        clli.setClPayVoucher(DEFAULT_CL_PAY_VOUCHER);
+        clli.setScmaOidYnAcc(DEFAULT_YN);
+        clli.setScmaOidYnHospitalPdn(DEFAULT_YN);
+        Long membOid = memberRepository.getMembOidByNo(req.getMember_no());
+        clli.setMembOid(membOid);
 
-        // ---------------- pay_print_in_other_lang_ind ----------------
-        String rawPayPrintInOtherLangInd = req.getPay_print_in_other_lang_ind();
-        String payPrintInOtherLangInd = (rawPayPrintInOtherLangInd != null)
-                ? rawPayPrintInOtherLangInd.trim().toUpperCase()
-                : "N";
-        if ("Y".equals(payPrintInOtherLangInd) || "N".equals(payPrintInOtherLangInd)) {
-            clli.setPayPrintInOtherLangInd(payPrintInOtherLangInd);
-        } else {
-            errors.add(new ClaimRequestFieldErrorDetail("pay_print_in_other_lang_ind", "Invalid value", "E400"));
+        List<MrPolicyholderProjection> pohoRs = (List<MrPolicyholderProjection>) pohoRepository.getPohoByMbrNo(req.getMember_no());
+        MrPolicyholderProjection poho = pohoRs.get(0);
+        if (poho != null) {
+            clli.setPayAddr1(poho.getBillAddr1());
+            clli.setPayAddr2(poho.getBillAddr2());
+            clli.setPayAddr3(poho.getBillAddr3());
+            clli.setPayAddr4(poho.getBillAddr4());
+            clli.setScmaOidPayProvince(poho.getScmaOidBillProvince());
+            clli.setScmaOidCountryPay(poho.getScmaOidCountryBillAddr());
+            clli.setScmaOidClPaymentMethod(poho.getScmaOidClPayMethod());
+            clli.setPayZipCde(poho.getBillZipCde());
         }
 
-        // ---------------- hospital_number ----------------
-        String rawHospitalNumber = req.getHospital_number();
-        String hospitalNumber = (rawHospitalNumber != null) ? rawHospitalNumber.trim().toUpperCase() : "-";
-        clli.setHospitalNumber(hospitalNumber);
-
-        // ---------------- hosp_sub_no ----------------
-        String rawHospSubNo = req.getHosp_sub_no();
-        String hospSubNo = (rawHospSubNo != null) ? rawHospSubNo.trim().toUpperCase() : "E-CLAIM";
-        clli.setHospSubNo(hospSubNo);
-
-        // ---------------- hosp_sub_no ----------------
-        String rawClPayVoucher = req.getCl_pay_voucher();
-        String clPayVoucher = (rawClPayVoucher != null) ? rawClPayVoucher.trim().toUpperCase() : "LB1";
-        clli.setClPayVoucher(clPayVoucher);
-
-        // ---------------------
-        clli.setScmaOidYnAcc(checkYnFormat(req.getScma_oid_yn_acc(), "scma_oid_yn_acc", errors));
-        clli.setScmaOidYnHospitalPdn(
-                checkYnFormat(req.getScma_oid_yn_hospital_pdn(), "scma_oid_yn_hospital_pdn", errors));
-        clli.setPayZipCde(req.getPay_zip_cde());
-
-        //---------------------
-        String rawMembOid = req.getMemb_oid();
-        if( rawMembOid != null) {
-            clli.setMembOid(parseLong(rawMembOid, "memb_oid", errors));
-        };
-        
-        //---------------------
-        String rawPayAddr1 = req.getPay_addr1();
-        if( rawPayAddr1 != null) {
-            clli.setPayAddr1(rawPayAddr1.trim());
-        };
-        //---------------------
-        String rawPayAddr2 = req.getPay_addr2();
-        if( rawPayAddr2 != null) {
-            clli.setPayAddr2(rawPayAddr2.trim());
-        };
-        //---------------------
-        String rawPayAddr3 = req.getPay_addr3();
-        if( rawPayAddr3 != null) {
-            clli.setPayAddr3(rawPayAddr3.trim());
-        };
-        //---------------------
-        String rawPayAddr4 = req.getPay_addr4();
-        if( rawPayAddr4 != null) {
-            clli.setPayAddr4(rawPayAddr4.trim());
-        };
-        //---------------------
-        String rawPayProvince = req.getScma_oid_pay_province();
-        if( rawPayProvince != null) {
-            clli.setScmaOidPayProvince(rawPayProvince.trim());
-        };
-        //---------------------
-        String rawCountryPay = req.getScma_oid_country_pay();
-        if( rawCountryPay != null) {
-            clli.setScmaOidCountryPay(rawCountryPay.trim());
-        };
-        //---------------------
-        String rawPaymentMethod = req.getScma_oid_cl_payment_method();
-        if( rawPaymentMethod != null) {
-            clli.setScmaOidClPaymentMethod(rawPaymentMethod.trim());
-        };
-
-        //---------------------
-        String rawCrtUser = req.getCrt_user();
-        String crtUser = (rawCrtUser != null) ? rawCrtUser.trim() : "API";
-        clli.setCrtUser(crtUser);
-        clli.setUpdUser(crtUser);
+        clli.setCrtUser(DEFAULT_USER);
+        clli.setUpdUser(DEFAULT_USER);
         clli.setCrtDate(LocalDateTime.now());
         clli.setUpdDate(LocalDateTime.now());
 
         return clli;
     }
 
-    private static LocalDate parseDate(String value, String field, List<ClaimRequestFieldErrorDetail> errors) {
+    private LocalDate parseDate(String value, String field, List<ClaimRequestFieldErrorDetail> errors) {
         if (value == null || value.isBlank()) {
             errors.add(new ClaimRequestFieldErrorDetail(field, "Date value is missing", "E400"));
             return null;
@@ -213,16 +129,7 @@ public class ClLineMapper {
         }
     }
 
-    private static Long parseLong(String value, String field, List<ClaimRequestFieldErrorDetail> errors) {
-        try {
-            return Long.parseLong(value);
-        } catch (Exception e) {
-            errors.add(new ClaimRequestFieldErrorDetail(field, "Invalid number", "E400"));
-            return null;
-        }
-    }
-
-    private static BigDecimal parseBigDecimal(String value, String field, List<ClaimRequestFieldErrorDetail> errors) {
+    private BigDecimal parseBigDecimal(String value, String field, List<ClaimRequestFieldErrorDetail> errors) {
         if (value == null || value.isBlank()) {
             errors.add(new ClaimRequestFieldErrorDetail(field, "Value is missing", "E400"));
             return null;
@@ -234,19 +141,5 @@ public class ClLineMapper {
             errors.add(new ClaimRequestFieldErrorDetail(field, "Invalid number format", "E400"));
             return null;
         }
-    }
-
-    private static String checkYnFormat(String value, String field, List<ClaimRequestFieldErrorDetail> errors) {
-        if (value == null || value.isBlank()) {
-            return "YN_N"; // default to "YN_N"
-        }
-
-        String yn = value.trim().toUpperCase();
-        if (YN_LS.contains(yn)) {
-            return yn;
-        }
-
-        errors.add(new ClaimRequestFieldErrorDetail(field, "Invalid Y/N format (expected YN_Y or YN_N)", "E400"));
-        return null;
     }
 }

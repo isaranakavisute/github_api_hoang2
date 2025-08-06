@@ -633,9 +633,9 @@ public class MyController {
         }
     }
 
-    @PostMapping(path="/inquiry_benefit")
+    @PostMapping(path="/inquiry_benefit_old2")
     //public member_info inquiry_benefit(@RequestParam Map<String, String> requestParams) {
-    public inquiry_benefit inquiry_benefit(@RequestParam Map<String, String> requestParams) {
+    public inquiry_benefit inquiry_benefit_old2(@RequestParam Map<String, String> requestParams) {
         String MBR_NO = requestParams.get("MBR_NO");
         //String ID_CARD_NO = requestParams.get("ID_CARD_NO");
         //String TIN = requestParams.get("TIN");
@@ -865,6 +865,16 @@ public class MyController {
         {
             return member_info_obj;
         }
+    }
+
+    @PostMapping(path="/inquiry_benefit")
+    //public List<VwPchiMobileBenefit> inquiry_benefit(@RequestParam Map<String, String> requestParams) {
+    public inquiry_benefit1 inquiry_benefit(@RequestParam Map<String, String> requestParams) {
+        String MBR_NO = requestParams.get("MBR_NO");
+        inquiry_benefit1 inquiry_benefit1_obj = new inquiry_benefit1();
+        inquiry_benefit1_obj.setData((List<VwPchiMobileBenefit>) VwPchiMobileBenefit_repository.get_VwPchiMobileBenefits_From_MBR_NO(MBR_NO));
+        //return (List<VwPchiMobileBenefit>) VwPchiMobileBenefit_repository.get_VwPchiMobileBenefits_From_MBR_NO(MBR_NO);
+        return inquiry_benefit1_obj;
     }
 
 

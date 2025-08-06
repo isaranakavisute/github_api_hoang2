@@ -1058,9 +1058,9 @@ public class MyController {
     }
 
 
-     @PostMapping(path="/inquiry_claim_detail")
+     @PostMapping(path="/inquiry_claim_detail_old2")
     //public List<claim_info> inquiry_claim_detail2(@RequestParam Map<String, String> requestParams) {
-    public List<inquiry_claim_detail> inquiry_claim_detail(@RequestParam Map<String, String> requestParams) {
+    public List<inquiry_claim_detail> inquiry_claim_detail_old2(@RequestParam Map<String, String> requestParams) {
         //List<ClClaim> claim_obj = (List<ClClaim>) cl_claim_repository.get_CL_Line_From_Memb();
         String MBR_NO = requestParams.get("MBR_NO");
         //List<MrMember> member_obj = (List<MrMember>) mr_member_repository.get_MEMB_OID_From_MBR_NO(MBR_NO);
@@ -1167,6 +1167,16 @@ public class MyController {
             claim_info_list.add(claim_info_obj);
         }
         return claim_info_list;
+    }
+
+    @PostMapping(path="/inquiry_claim_detail")
+    //public List<VwPchiMobileClaimDetail> inquiry_claim_detail(@RequestParam Map<String, String> requestParams) {
+    public inquiry_claim_detail1 inquiry_claim_detail(@RequestParam Map<String, String> requestParams) {
+        String MBR_NO = requestParams.get("MBR_NO");
+        inquiry_claim_detail1 inquiry_claim_detail1_obj = new inquiry_claim_detail1();
+        //return (List<VwPchiMobileClaimDetail>) VwPchiMobileClaimDetail_repository.get_VwPchiMobileClaimDetail_From_MBR_NO(MBR_NO);
+        inquiry_claim_detail1_obj.setData((List<VwPchiMobileClaimDetail>) VwPchiMobileClaimDetail_repository.get_VwPchiMobileClaimDetail_From_MBR_NO(MBR_NO));
+        return inquiry_claim_detail1_obj;
     }
 
 

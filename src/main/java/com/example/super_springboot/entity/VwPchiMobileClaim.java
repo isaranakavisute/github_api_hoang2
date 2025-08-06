@@ -47,6 +47,7 @@ public class VwPchiMobileClaim {
     @Column(name = "PAY_TO", length = 80)
     private String payTo;
 
+    /*
     @Column(name = "BILLED")
     private Long billed;
 
@@ -58,6 +59,19 @@ public class VwPchiMobileClaim {
 
     @Column(name = "EXCESS")
     private Long excess;
+     */
+
+    @Column(name = "BILLED")
+    private Float billed;
+
+    @Column(name = "ACCEPTED")
+    private Float accepted;
+
+    @Column(name = "UNPAID")
+    private Float unpaid;
+
+    @Column(name = "EXCESS")
+    private Float excess;
 
     @Column(name = "CASH_MEMBER", precision = 15, scale = 4)
     private BigDecimal cashMember;

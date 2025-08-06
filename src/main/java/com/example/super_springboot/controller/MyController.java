@@ -1,16 +1,11 @@
 package com.example.super_springboot.controller;
 
+import com.example.super_springboot.dto.response.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.super_springboot.dto.SQL1;
-import com.example.super_springboot.dto.response.claim_info;
-import com.example.super_springboot.dto.response.inquiry_personal_information;
-import com.example.super_springboot.dto.response.inquiry_benefit;
-import com.example.super_springboot.dto.response.inquiry_claim_header;
-import com.example.super_springboot.dto.response.inquiry_claim_detail;
-import com.example.super_springboot.dto.response.member_info;
 import com.example.super_springboot.entity.ADODB_LOGSQL;
 import com.example.super_springboot.entity.ClClaim;
 import com.example.super_springboot.entity.ClLine;
@@ -25,6 +20,12 @@ import com.example.super_springboot.entity.PdBenHead;
 import com.example.super_springboot.entity.PdPlan;
 import com.example.super_springboot.entity.PdPlanBenefit;
 import com.example.super_springboot.entity.PdPlanLimit;
+
+import com.example.super_springboot.entity.VwPchiMobileBenefit;
+import com.example.super_springboot.entity.VwPchiMobileClaim;
+import com.example.super_springboot.entity.VwPchiMobileClaimDetail;
+import com.example.super_springboot.entity.VwPchiMobilePersonalInfo;
+
 import com.example.super_springboot.repository.ADODB_LOGSQLRepository1;
 import com.example.super_springboot.repository.CL_CLAIM_Repository;
 import com.example.super_springboot.repository.CL_LINE_Repository;
@@ -38,6 +39,11 @@ import com.example.super_springboot.repository.MR_POLICY_Repository;
 import com.example.super_springboot.repository.PD_BEN_HEAD_Repository;
 import com.example.super_springboot.repository.PD_PLAN_BENEFIT_Repository;
 import com.example.super_springboot.repository.PD_PLAN_Repository;
+
+import com.example.super_springboot.repository.VwPchiMobileBenefit_Repository;
+import com.example.super_springboot.repository.VwPchiMobileClaimDetail_Repository;
+import com.example.super_springboot.repository.VwPchiMobileClaim_Repository;
+import com.example.super_springboot.repository.VwPchiMobilePersonalInfo_Repository;
 
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
@@ -262,9 +268,9 @@ public class MyController {
         }
     }
 
-    @PostMapping(path="/inquiry_personal_information")
+    @PostMapping(path="/inquiry_personal_information_old2")
     //public List<member_info> inquiry_personal_information(@RequestParam Map<String, String> requestParams) {
-    public List<inquiry_personal_information> inquiry_personal_information(@RequestParam Map<String, String> requestParams) {
+    public List<inquiry_personal_information> inquiry_personal_information_old2(@RequestParam Map<String, String> requestParams) {
         //List<member_info> member_info_list = new ArrayList<>();
         String upd_date = requestParams.get("upd_date");
         String seq = requestParams.get("seq");
@@ -414,6 +420,70 @@ public class MyController {
 //        }
         return member_info_list;
     }
+
+
+
+    @PostMapping(path="/inquiry_personal_information")
+    public inquiry_personal_information1 inquiry_personal_information(@RequestParam Map<String, String> requestParams) {
+        String UPD_DATE = requestParams.get("UPD_DATE");
+        String SEQ = requestParams.get("SEQ");
+
+        if (requestParams.get("SEQ") == null)
+            SEQ = "1";
+
+        Long begining_seq = (long) (((Integer.valueOf(SEQ)) - 1) * 1000) + 1;
+        Long ending_seq = (long) Integer.valueOf(SEQ) * 1000;
+
+        if (requestParams.get("UPD_DATE") == null)
+        {
+            DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+                    .parseCaseInsensitive()
+                    .appendPattern("dd-MMM-yy")
+                    .toFormatter(Locale.getDefault());
+
+            LocalDate today = LocalDate.now();
+            String today_str = today.format(formatter);
+            today_str = today_str.toUpperCase();
+            UPD_DATE = today_str;
+        }
+        System.out.println(UPD_DATE);
+
+        String daybefore="";
+        try
+        {
+            DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+                    .parseCaseInsensitive()
+                    .appendPattern("dd-MMM-yy")
+                    .toFormatter(Locale.getDefault());
+
+            Date target_date = new SimpleDateFormat("dd-MMM-yy").parse(UPD_DATE);
+            LocalDate previous_date = LocalDate.of(target_date.getYear(), target_date.getMonth()+1, target_date.getDate());
+            previous_date = previous_date.minusDays(1);
+            daybefore = previous_date.format(formatter);
+            daybefore = daybefore.toUpperCase();
+        } catch (ParseException e)
+        {
+            e.printStackTrace();
+        }
+        System.out.println(daybefore);
+
+        List<VwPchiMobilePersonalInfo> original_result = (List<VwPchiMobilePersonalInfo>)  VwPchiMobilePersonalInfo_repository.get_members_from_upd_date(UPD_DATE,daybefore);
+        List<VwPchiMobilePersonalInfo> filtered_result = new ArrayList<>();
+        for (int i = 0 ; i < original_result.size() ; i++)
+        {
+            if (( i < (begining_seq-1)) || (i > (ending_seq-1)))
+                continue;
+
+            filtered_result.add(original_result.get(i));
+        }
+
+        inquiry_personal_information1 inquiry_personal_information1_obj = new inquiry_personal_information1();
+        inquiry_personal_information1_obj.setData(filtered_result);
+        return inquiry_personal_information1_obj;
+    }
+
+
+
 
     @PostMapping(path="/inquiry_benefit_old")
     public member_info inquiry_benefit_old(@RequestParam Map<String, String> requestParams) {

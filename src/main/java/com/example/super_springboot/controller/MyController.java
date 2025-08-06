@@ -149,6 +149,18 @@ public class MyController {
     @Autowired
     private PD_PLAN_LIMIT_Repository pd_plan_limit_repository;
 
+    @Autowired
+    private VwPchiMobileBenefit_Repository VwPchiMobileBenefit_repository;
+
+    @Autowired
+    private VwPchiMobileClaim_Repository VwPchiMobileClaim_repository;
+
+    @Autowired
+    private VwPchiMobileClaimDetail_Repository VwPchiMobileClaimDetail_repository;
+
+    @Autowired
+    private VwPchiMobilePersonalInfo_Repository VwPchiMobilePersonalInfo_repository;
+
     @GetMapping("/")
     public String home() {
         return "Greetings from Spring Boot!";

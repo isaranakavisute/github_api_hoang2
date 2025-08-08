@@ -13,8 +13,7 @@ public class ClaimRequest {
     @Pattern(regexp = "\\d{14}", message = "policy_no must be 14 digits")
     private String policy_no;
 
-    @NotBlank(message = "remarks is required")
-    @Size(max = 400, message = "Remarks must not exceed 4000 characters")
+    @Size(max = 4000, message = "Remarks must not exceed 4000 characters")
     private String remarks;
 
     @NotBlank(message = "total_billed is required")
@@ -29,7 +28,6 @@ public class ClaimRequest {
     @NotNull(message = "member_name is required")
     private String member_name;
 
-    @NotNull(message = "provider is required")
     private String provider;
 }
 

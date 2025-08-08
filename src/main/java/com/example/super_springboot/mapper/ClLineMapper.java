@@ -38,7 +38,7 @@ public class ClLineMapper {
     private static final String DEFAULT_CCY = "CCY_THB";
     private static final String DEFAULT_PAY_PRINT_LANG = "N";
     private static final String DEFAULT_HOSPITAL_NUMBER = "-";
-    private static final String DEFAULT_HOSP_SUB_NO = "E-CLAIM";
+    private static final String DEFAULT_HOSP_SUB_NO = "API";
     private static final String DEFAULT_CL_PAY_VOUCHER = "LB1";
     private static final String DEFAULT_DIAG_OID = "207867";
     private static final String DEFAULT_BEHD_OID = "20015";
@@ -61,14 +61,16 @@ public class ClLineMapper {
             clli.setAdjPresAmt(totalBilled);
         }
         Long poplOid = poplRepository.getLatestPoplByPocyNo(req.getPolicy_no());
-
         clli.setBenPoplOid(poplOid);
         clli.setPoplOid(poplOid);
         String scmaOidProduct = poplRepository.getProductTypeByPoplOid(poplOid);
         clli.setScmaOidProduct(scmaOidProduct);
-        clli.setProvName(req.getProvider());
-        Long provOid = providerRepository.getProviderOidByName(req.getProvider());
-        clli.setProvOid(provOid);
+        String provName = req.getProvider();
+        if (provName != null && !provName.isBlank()) {
+            clli.setProvName(provName);
+            Long provOid = providerRepository.getProviderOidByName(provName);
+            clli.setProvOid(provOid);
+        }
         clli.setScmaOidCountryTreatment(DEFAULT_COUNTRY_TREATMENT);
         clli.setScmaOidClType(DEFAULT_CL_TYPE);
         clli.setStageIdx(DEFAULT_STAGE_IDX);

@@ -143,4 +143,12 @@ public class VwPchiMobilePersonalInfo {
     @Column(name = "UPD_DATE")
     private LocalDate updDate;
 
+    @Size(max = 100)
+    @Column(name = "EMAIL", length = 100)
+    private String email;
+
+    @Size(max = 15)
+    @Column(name = "MOBILE_NO", length = 15)
+    private String mobile_no;
+
 }

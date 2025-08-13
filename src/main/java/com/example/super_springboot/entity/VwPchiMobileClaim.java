@@ -109,4 +109,8 @@ public class VwPchiMobileClaim {
     @Column(name = "MEMBERNO", nullable = false, length = 9)
     private String memberno;
 
+    @Size(max = 160)
+    @Column(name = "PROVIDER_NAME", length = 160)
+    private String provider_name;
+
 }

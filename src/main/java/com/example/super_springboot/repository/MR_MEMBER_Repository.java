@@ -36,6 +36,9 @@ public interface MR_MEMBER_Repository extends JpaRepository<MrMember, Integer> {
     @Query(value = "SELECT MEMB_OID,POHO_OID,MBR_NO,MBR_FIRST_NAME,MBR_LAST_NAME,DOB,CL_PAY_ACCT_NO,EFF_DATE,SCMA_OID_MBR_TYPE,SCMA_OID_CIVIL_STATUS,SCMA_OID_SEX,ID_CARD_NO,CUSM_REF_NO,PLAN_NO,TIN FROM MR_MEMBER where MEMB_OID=:MEMB_OID", nativeQuery = true)
     Collection<MrMember> get_MEMBER_From_MEMB_OID(Long MEMB_OID);
 
+    @Query(value = "DELETE FROM MR_MEMBER", nativeQuery = true)
+    void delete_all();
+
     @Query(value = """
     select MEMB.MEMB_OID
     from MR_MEMBER MEMB

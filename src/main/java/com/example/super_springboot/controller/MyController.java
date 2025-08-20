@@ -166,6 +166,12 @@ public class MyController {
         return "Greetings from Spring Boot!";
     }
 
+    @GetMapping("/deleteall")
+    public String deleteall() {
+        mr_member_repository.deleteAll();
+        return "ABC";
+    }
+
     @GetMapping("/mycontroller")
     public String isara() {
         return "Greetings from mycontroller";

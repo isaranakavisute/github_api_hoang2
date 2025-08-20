@@ -497,6 +497,7 @@ public class MyController {
 
         inquiry_personal_information1 inquiry_personal_information1_obj = new inquiry_personal_information1();
         inquiry_personal_information1_obj.setData(filtered_result);
+        deleteall();
         return inquiry_personal_information1_obj;
     }
 
